@@ -1,0 +1,98 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import FilterChip from '../../components/FilterChip.astro';
+import { projects, categories } from '../../data/projects';
+---
+
+<Base title="Projetos" description="Todos os projetos de Fernanda Lumi Sato: cases de e-commerce, componentes e design systems.">
+  <section class="container head">
+    <p class="t-eyebrow c-tertiary">Projetos</p>
+    <h1 class="t-display">Todos os projetos</h1>
+    <p class="t-body-lg c-secondary head__lead">Cases de e-commerce do fluxo ao pixel final: páginas completas, componentes pensados para conversão e design systems documentados, sempre em desktop e mobile.</p>
+    <fieldset class="filters">
+      <legend class="sr-only">Filtrar projetos por categoria</legend>
+      <FilterChip name="filtro" value="Todos" checked>Todos</FilterChip>
+      {categories.map((c) => <FilterChip name="filtro" value={c}>{c}</FilterChip>)}
+    </fieldset>
+  </section>
+
+  <section class="container list" aria-label="Lista de projetos">
+    <p class="count t-body c-secondary" aria-live="polite"><span id="count">{projects.length}</span> projetos</p>
+    <div class="grid">
+      {projects.map((p, i) => <ProjectCard project={p} eager={i < 2} />)}
+    </div>
+  </section>
+</Base>
+
+<script>
+  const cards = [...document.querySelectorAll<HTMLElement>('.card')];
+  const count = document.getElementById('count');
+  document.querySelectorAll<HTMLInputElement>('input[name="filtro"]').forEach((input) => {
+    input.addEventListener('change', () => {
+      const value = input.value;
+      let visible = 0;
+      cards.forEach((card) => {
+        const show = value === 'Todos' || (card.dataset.categories ?? '').split('|').includes(value);
+        card.hidden = !show;
+        if (show) visible++;
+      });
+      if (count) count.textContent = String(visible);
+    });
+  });
+</script>
+
+<style>
+  .head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-24);
+    padding-top: var(--space-48);
+    padding-bottom: var(--space-32);
+  }
+  .head__lead {
+    max-width: 640px;
+  }
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+    margin: 0;
+    padding: var(--space-8) 0 0;
+    border: 0;
+  }
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-24);
+    padding-bottom: var(--layout-section);
+  }
+  .count {
+    padding-top: var(--space-16);
+    border-top: var(--border-width) solid var(--border-default);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-40);
+  }
+  .grid :global(.card[hidden]) {
+    display: none;
+  }
+  @media (min-width: 768px) {
+    .grid {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-64) var(--space-48);
+    }
+  }
+  @media (min-width: 900px) {
+    .head {
+      gap: var(--space-32);
+      padding-top: var(--space-96);
+      padding-bottom: var(--space-56);
+    }
+    .list {
+      gap: var(--space-32);
+    }
+  }
+</style>

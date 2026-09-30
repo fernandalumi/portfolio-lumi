@@ -1,0 +1,172 @@
+---
+// Renders one node of a layout tree exported from Figma (see scripts/ and src/content/cases/).
+// Auto layout frames become flexbox boxes with the same gaps, paddings, colors and radii;
+// text keeps the design-system text styles; free-positioned blocks come in as images.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { caseImages } from './images';
+
+export interface FNode {
+  k: 1 | 2 | 3;
+  n?: string; W?: number; H?: number; w?: 'F' | 'H' | number; h?: 'F' | 'H' | number;
+  abs?: [number, number]; op?: number; rad?: number | number[];
+  // box
+  d?: 'H' | 'V'; g?: number; cg?: number; wr?: 1; p?: number[]; ax?: string; bg?: string; bd?: [number | number[], string]; dash?: 1; sh?: string; clip?: 1; c?: FNode[]; inst?: 1;
+  // text
+  s?: string; x?: string; sg?: Seg[]; c2?: string; al?: string; nw?: 1; tr?: 1;
+  // image
+  key?: string; alt?: string;
+}
+interface Seg { x: string; c?: string; ff?: string; fs?: number; lh?: number; ls?: string; tc?: 'u'; fw?: number; it?: 1; u?: 1; st?: 1 }
+
+interface Props {
+  node: FNode;
+  parentDir?: 'H' | 'V';
+  ctx: { mobile: boolean; nextHref: string; state: { h1: boolean; firstImg: boolean } };
+}
+const { node, parentDir, ctx } = Astro.props;
+
+const px = (v: number) => `${Math.round(v * 100) / 100}px`;
+const JUSTIFY: Record<string, string> = { s: 'flex-start', c: 'center', e: 'flex-end', b: 'space-between', l: 'flex-start' };
+const ALIGN: Record<string, string> = { s: 'flex-start', c: 'center', e: 'flex-end', l: 'baseline', b: 'flex-start' };
+const FONT: Record<string, string> = {
+  Anuphan: 'var(--font-heading)', Inter: 'var(--font-text)',
+  Manrope: "'Manrope Variable', 'Manrope', sans-serif", 'Playfair Display': "'Playfair Display Variable', 'Playfair Display', serif",
+};
+const STYLE_CLASS: Record<string, string> = {
+  'heading/display': 't-display', 'heading/h1': 't-h1', 'heading/h2': 't-h2', 'heading/h3': 't-h3', 'heading/h4': 't-h4',
+  'heading/ticker': 't-ticker', 'heading/stat': 't-stat', 'text/logo': 't-logo', 'text/body-lg': 't-body-lg', 'text/body': 't-body',
+  'text/body-sm': 't-body-sm', 'text/nav': 't-nav', 'text/link': 't-link', 'text/label': 't-label', 'text/eyebrow': 't-eyebrow', 'text/index': 't-index',
+};
+
+// Size of this node inside its auto layout parent
+const sizing: string[] = [];
+const w = node.w, h = node.h;
+if (node.abs) {
+  sizing.push('position:absolute', `left:${px(node.abs[0])}`, `top:${px(node.abs[1])}`, `width:${px(node.W ?? 0)}`);
+} else if (parentDir === 'H') {
+  if (w === 'F') sizing.push('flex:1 1 0', 'min-width:0');
+  else if (typeof w === 'number') sizing.push(w <= 200 ? `flex:0 0 ${px(w)}` : `flex:0 1 ${px(w)}`, 'min-width:0');
+  else sizing.push('flex:0 1 auto', 'min-width:0');
+  if (h === 'F') sizing.push('align-self:stretch');
+} else if (parentDir === 'V') {
+  if (w === 'F') sizing.push('align-self:stretch');
+  else if (typeof w === 'number') sizing.push(`width:${px(w)}`, 'max-width:100%');
+  else if (node.k === 1 && node.d && node.W) sizing.push(`width:${px(node.W)}`, 'max-width:100%');
+  if (h === 'F') sizing.push('flex:1 1 auto');
+} else {
+  sizing.push('width:100%');
+}
+
+const radius = (r?: number | number[]) => r === undefined ? '' : Array.isArray(r) ? `border-radius:${r.map(px).join(' ')}` : `border-radius:${r >= 999 ? '9999px' : px(r)}`;
+
+// Box
+let boxStyle = '';
+let tag: string = 'div';
+let href: string | undefined;
+if (node.k === 1) {
+  const s: string[] = [...sizing];
+  if (node.d) {
+    s.push('display:flex', `flex-direction:${node.d === 'H' ? 'row' : 'column'}`);
+    if (node.g) s.push(`column-gap:${node.d === 'H' ? px(node.g) : '0'}`, `row-gap:${node.d === 'V' ? px(node.g) : px(node.cg ?? 0)}`);
+    if (node.wr) { s.push('flex-wrap:wrap'); if (node.d === 'H') s.push(`row-gap:${px(node.cg ?? 0)}`); }
+    if (node.p && node.p.some(Boolean)) s.push(`padding:${node.p.map(px).join(' ')}`);
+    if (node.ax) { s.push(`justify-content:${JUSTIFY[node.ax[0]]}`, `align-items:${ALIGN[node.ax[1]]}`); }
+    if (node.c?.some((c) => c.abs)) s.push('position:relative');
+  } else {
+    // solid shape (rectangle, dot, divider)
+    if (typeof w !== 'number' && w !== 'F' && node.W) s.push(`width:${px(node.W)}`);
+    if (node.H) s.push(`height:${px(node.H)}`);
+    s.push('flex-shrink:0');
+  }
+  if (typeof h === 'number' && node.d) s.push(`min-height:${px(h)}`);
+  if (node.bg) s.push(`background:${node.bg}`);
+  if (node.bd) { const [bw, color] = node.bd; const ws = Array.isArray(bw) ? bw.map(px).join(' ') : px(bw); s.push(`border-style:${node.dash ? 'dashed' : 'solid'}`, `border-width:${ws}`, `border-color:${color}`); }
+  const r = radius(node.rad); if (r) s.push(r);
+  if (node.sh) s.push(`box-shadow:${node.sh}`);
+  if (node.clip) s.push('overflow:hidden');
+  if (node.op !== undefined) s.push(`opacity:${node.op}`);
+  boxStyle = s.join(';');
+  if (node.n?.startsWith('Card - próximo projeto')) { tag = 'a'; href = ctx.nextHref; }
+  else if (node.n?.startsWith('Todos os projetos')) { tag = 'a'; href = '/projetos'; }
+}
+
+// Text
+let textTag = 'p';
+let textClass = '';
+let textStyle = '';
+let textHtml = '';
+const LINE_BREAK = new RegExp('[\n\u2028]', 'g');
+const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(LINE_BREAK, '<br />');
+const segCss = (g: Seg, withFont: boolean) => {
+  const o: string[] = [];
+  if (g.c) o.push(`color:${g.c}`);
+  if (withFont && g.ff) o.push(`font-family:${FONT[g.ff] ?? `'${g.ff}'`}`);
+  if (withFont && g.fs) o.push(`font-size:${px(g.fs)}`);
+  if (withFont && g.lh) o.push(`line-height:${g.lh}`);
+  if (withFont && g.ls) o.push(`letter-spacing:${g.ls}`);
+  if (withFont && g.tc === 'u') o.push('text-transform:uppercase');
+  if (g.fw) o.push(`font-weight:${g.fw}`);
+  if (g.it) o.push('font-style:italic');
+  if (g.u) o.push('text-decoration:underline');
+  if (g.st) o.push('text-decoration:line-through');
+  return o.join(';');
+};
+if (node.k === 2) {
+  const s: string[] = [...sizing, 'margin:0'];
+  textClass = node.s ? STYLE_CLASS[node.s] ?? '' : '';
+  if (node.s === 'heading/display' && !ctx.state.h1) { textTag = 'h1'; ctx.state.h1 = true; }
+  else if (node.s === 'heading/display' || node.s === 'heading/h1' || node.s === 'heading/h2') textTag = 'h2';
+  else if (node.s === 'heading/h3') textTag = 'h3';
+  else if (node.s === 'heading/h4') textTag = 'h4';
+  if (node.al) s.push(`text-align:${{ C: 'center', R: 'right', J: 'justify' }[node.al] ?? 'left'}`);
+  if (node.nw && (node.x ?? '').length < 40 && !(node.x ?? '').includes('\n')) s.push('white-space:nowrap');
+  if (node.tr) s.push('overflow:hidden', 'text-overflow:ellipsis', 'white-space:nowrap');
+  if (node.sg) {
+    // Base font from the first segment when there is no text style
+    if (!node.s && node.sg[0]) s.push(segCss({ ...node.sg[0], c: undefined, fw: undefined, it: undefined, u: undefined, st: undefined }, true));
+    textHtml = node.sg.map((g) => `<span style="${segCss(g, !node.s || !!g.ff)}">${esc(g.x)}</span>`).join('');
+  } else {
+    s.push(segCss(node as unknown as Seg, !node.s));
+    textHtml = esc(node.x ?? '');
+  }
+  textStyle = s.filter(Boolean).join(';');
+  // Site addresses mentioned in the text become real links
+  textHtml = textHtml.replace(/\b((?:www\.)?[a-z0-9-]+\.com(?:\.br)?)\b(?![^<]*<\/a>)/g, '<a href="https://$1" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline">$1</a>');
+}
+
+// Image
+let img: ImageMetadata | undefined;
+let imgStyle = '';
+let widths: number[] = [];
+let sizes = '';
+let eager = false;
+if (node.k === 3) {
+  img = caseImages[node.key!];
+  const s: string[] = [...sizing];
+  if (parentDir !== 'H' && typeof w !== 'number' && w !== 'F') s.push(`width:${px(node.W ?? 0)}`, 'max-width:100%');
+  if (node.W && node.H) s.push(`aspect-ratio:${node.W} / ${node.H}`);
+  s.push('height:auto', 'display:block');
+  const r = radius(node.rad); if (r) s.push(r, 'overflow:hidden');
+  if (node.op !== undefined) s.push(`opacity:${node.op}`);
+  imgStyle = s.join(';');
+  const display = Math.round(node.W ?? 400);
+  const max = img?.width ?? display * 2;
+  widths = [...new Set([display, display * 2, ctx.mobile ? display * 3 : display].map((v) => Math.min(v, max)))];
+  sizes = ctx.mobile ? `(max-width: 899px) ${Math.round(((node.W ?? 350) / 390) * 100)}vw, ${display}px` : `(min-width: 1440px) ${display}px, ${Math.round(((node.W ?? 1312) / 1440) * 100)}vw`;
+  if (!ctx.mobile && !ctx.state.firstImg) { eager = true; ctx.state.firstImg = true; }
+}
+const Tag = tag as any;
+const TextTag = textTag as any;
+---
+
+{node.k === 1 && (
+  <Tag style={boxStyle} href={href} class={href ? 'fx-link' : undefined}>
+    {node.c?.map((child) => <Astro.self node={child} parentDir={node.d} ctx={ctx} />)}
+  </Tag>
+)}
+{node.k === 2 && <TextTag class={textClass || undefined} style={textStyle} set:html={textHtml} />}
+{node.k === 3 && img && (
+  <Image src={img} alt={node.alt ?? ''} widths={widths} sizes={sizes} style={imgStyle} loading={eager ? 'eager' : 'lazy'} decoding="async" />
+)}
+{node.k === 3 && !img && <div style={imgStyle + ';background:var(--bg-subtle)'} data-missing-image={node.key}></div>}

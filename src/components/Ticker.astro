@@ -1,0 +1,87 @@
+---
+// Figma: component "Ticker row" (Default / Variant2). Two rows moving in opposite
+// directions, about 40s per loop, paused when the visitor prefers reduced motion.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import flowerCoral from '../assets/brand/flower-coral.png';
+import flowerViolet from '../assets/brand/flower-violet.png';
+import flowerGreen from '../assets/brand/flower-green.png';
+import bar1 from '../assets/brand/ticker-bar-1.png';
+import bar2 from '../assets/brand/ticker-bar-2.png';
+import bar3 from '../assets/brand/ticker-bar-3.png';
+
+type Item = { word: string } | { flower: ImageMetadata } | { bar: ImageMetadata } | { solid: true };
+const rows: Item[][] = [
+  [{ word: 'Intenção' }, { flower: flowerCoral }, { word: 'Perspectiva' }, { bar: bar1 }, { word: 'Curiosidade' }, { flower: flowerViolet }, { word: 'Propósito' }, { solid: true }],
+  [{ flower: flowerGreen }, { word: 'Experiência' }, { bar: bar2 }, { word: 'Solução' }, { flower: flowerCoral }, { word: 'Impacto' }, { bar: bar3 }, { word: 'Função' }, { solid: true }],
+];
+---
+
+<section class="ticker" aria-label="Intenção, perspectiva, curiosidade, propósito, experiência, solução, impacto, função">
+  {rows.map((items, i) => (
+    <div class:list={['ticker__row', i % 2 ? 'is-reverse' : '']} aria-hidden="true">
+      {[0, 1].map(() => (
+        <div class="ticker__track">
+          {items.map((it) =>
+            'word' in it ? <span class="t-ticker">{it.word}</span>
+            : 'flower' in it ? <Image src={it.flower} alt="" width={56} height={56} class="ticker__flower flower" />
+            : 'bar' in it ? <Image src={it.bar} alt="" height={56} class="ticker__bar" />
+            : <span class="ticker__bar ticker__bar--solid"></span>
+          )}
+        </div>
+      ))}
+    </div>
+  ))}
+</section>
+
+<style>
+  .ticker {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+    padding-block: var(--space-80);
+    overflow: hidden;
+  }
+  .ticker__row {
+    display: flex;
+    width: max-content;
+    border-bottom: var(--border-width) solid var(--border-default);
+    animation: ticker 40s linear infinite;
+  }
+  .ticker__row.is-reverse {
+    animation-direction: reverse;
+  }
+  .ticker__track {
+    display: flex;
+    align-items: center;
+    gap: var(--space-24);
+    padding: var(--space-16) var(--space-24) var(--space-16) 0;
+    flex-shrink: 0;
+  }
+  .ticker__track > * {
+    flex-shrink: 0;
+  }
+  .ticker__flower {
+    width: 0.78em;
+    height: 0.78em;
+    font-size: var(--fs-ticker);
+    border-radius: 50%;
+  }
+  .ticker__bar {
+    height: calc(var(--fs-ticker) * 0.78);
+    width: auto;
+    border-radius: var(--radius-4);
+  }
+  .ticker__bar--solid {
+    display: block;
+    width: calc(var(--fs-ticker) * 1.53);
+    background: var(--accent-red);
+  }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ticker__row { animation: none; }
+  }
+</style>

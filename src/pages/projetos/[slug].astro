@@ -1,0 +1,63 @@
+---
+// Case page. The layout comes from the Figma case frames (desktop and mobile), exported to
+// src/content/cases/<slug>-d.json and <slug>-m.json. To change a text, search for it in those files.
+import Base from '../../layouts/Base.astro';
+import FigmaNode from '../../components/figma/FigmaNode.astro';
+import type { FNode } from '../../components/figma/FigmaNode.astro';
+import { projects } from '../../data/projects';
+
+const trees = import.meta.glob<{ default: { W: number; c: FNode[] } }>('/src/content/cases/*.json', { eager: true });
+
+export function getStaticPaths() {
+  return projects.map((p, i) => ({
+    params: { slug: p.slug },
+    props: { project: p, next: projects[(i + 1) % projects.length] },
+  }));
+}
+
+const { project, next } = Astro.props;
+const desktop = trees[`/src/content/cases/${project.slug}-d.json`]?.default;
+const mobile = trees[`/src/content/cases/${project.slug}-m.json`]?.default;
+const nextHref = `/projetos/${next.slug}`;
+const ctxD = { mobile: false, nextHref, state: { h1: false, firstImg: false } };
+const ctxM = { mobile: true, nextHref, state: { h1: false, firstImg: false } };
+---
+
+<Base title={project.title} description={project.description}>
+  {desktop && (
+    <div class="case case--d">
+      {desktop.c.map((node) => <FigmaNode node={node} parentDir="V" ctx={ctxD} />)}
+    </div>
+  )}
+  {mobile && (
+    <div class="case case--m">
+      {mobile.c.map((node) => <FigmaNode node={node} parentDir="V" ctx={ctxM} />)}
+    </div>
+  )}
+</Base>
+
+<style>
+  .case {
+    display: flex;
+    flex-direction: column;
+    margin-inline: auto;
+    overflow-x: clip;
+  }
+  .case--d {
+    max-width: 1440px;
+  }
+  .case--m {
+    display: none;
+  }
+  .case :global(.fx-link) {
+    color: inherit;
+    transition: opacity 200ms var(--ease-out);
+  }
+  .case :global(.fx-link:hover) {
+    opacity: 0.92;
+  }
+  @media (max-width: 899px) {
+    .case--d { display: none; }
+    .case--m { display: flex; }
+  }
+</style>

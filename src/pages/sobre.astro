@@ -1,0 +1,230 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import SplitSection from '../components/SplitSection.astro';
+import MetaItem from '../components/MetaItem.astro';
+import TextLink from '../components/TextLink.astro';
+import Tag from '../components/Tag.astro';
+import CtaBox from '../components/CtaBox.astro';
+import { sobre } from '../data/sobre';
+import { site } from '../data/site';
+import foto from '../assets/sobre/foto-lumi.png';
+import flowerViolet from '../assets/brand/flower-violet.png';
+---
+
+<Base title="Sobre mim" description="Fernanda Lumi Sato, UX/UI designer em São Paulo. Experiência, habilidades e formação.">
+  <section class="container hero">
+    <div class="hero__photo">
+      <Image src={foto} alt={sobre.photoAlt} widths={[350, 480, 960]} sizes="(min-width: 900px) 480px, 100vw" loading="eager" />
+      <Image src={flowerViolet} alt="" width={180} height={180} class="hero__flower flower" />
+    </div>
+
+    <div class="hero__text">
+      <p class="t-eyebrow c-tertiary">{sobre.eyebrow}</p>
+      <h1 class="t-display">{sobre.title}</h1>
+      <div class="hero__intro">
+        {sobre.intro.map((p) => <p class="t-body-lg c-secondary">{p}</p>)}
+      </div>
+      <dl class="hero__info">
+        {sobre.info.map((i) => <MetaItem label={i.label} value={i.value} />)}
+      </dl>
+      <div class="hero__links">
+        <TextLink href={site.cv}>Baixar currículo (PDF) →</TextLink>
+        <TextLink href={site.linkedin} external>LinkedIn →</TextLink>
+      </div>
+    </div>
+  </section>
+
+  <SplitSection eyebrow={sobre.services.eyebrow} title={sobre.services.title} subtle id="atuacao">
+    <ul class="rows">
+      {sobre.services.items.map((s) => (
+        <li class="row">
+          <h3 class="t-h3">{s.title}</h3>
+          <p class="t-body-lg c-secondary">{s.text}</p>
+        </li>
+      ))}
+    </ul>
+  </SplitSection>
+
+  <SplitSection eyebrow={sobre.experience.eyebrow} title={sobre.experience.title} id="experiencia">
+    <ol class="rows">
+      {sobre.experience.items.map((e) => (
+        <li class="row row--xp">
+          <p class="t-index c-tertiary">{e.period}</p>
+          <div class="row__title">
+            <h3 class="t-h3">{e.role}</h3>
+            <p class="t-body c-secondary">{e.company}</p>
+          </div>
+          <p class="t-body-lg c-secondary">{e.text}</p>
+        </li>
+      ))}
+    </ol>
+  </SplitSection>
+
+  <SplitSection eyebrow={sobre.skills.eyebrow} title={sobre.skills.title} subtle id="habilidades">
+    <div class="rows">
+      {sobre.skills.groups.map((g) => (
+        <div class="row">
+          <h3 class="t-h4">{g.title}</h3>
+          <ul class="tags">{g.tags.map((t) => <li><Tag>{t}</Tag></li>)}</ul>
+        </div>
+      ))}
+    </div>
+  </SplitSection>
+
+  <SplitSection eyebrow={sobre.education.eyebrow} title={sobre.education.title} id="formacao">
+    <div class="edu">
+      <div class="edu__block">
+        <p class="t-eyebrow c-tertiary">Graduação</p>
+        <div>
+          <h3 class="t-h4">{sobre.education.degree.title}</h3>
+          <p class="t-body c-secondary">{sobre.education.degree.detail}</p>
+        </div>
+      </div>
+      <div class="edu__block edu__block--courses">
+        <p class="t-eyebrow c-tertiary">Cursos complementares</p>
+        <ul>
+          {sobre.education.courses.map((c) => (
+            <li class="course">
+              <div>
+                <h3 class="t-h4">{c.title}</h3>
+                <p class="t-body c-secondary">{c.detail}</p>
+              </div>
+              <p class="t-index c-tertiary">{c.year}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </SplitSection>
+
+  <CtaBox />
+</Base>
+
+<style>
+  .hero {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-40);
+    padding-top: var(--space-48);
+    padding-bottom: var(--layout-section);
+  }
+  .hero__photo {
+    position: relative;
+    order: 2;
+    aspect-ratio: 4 / 5;
+    border-radius: var(--radius-16);
+    background: var(--bg-subtle);
+  }
+  .hero__photo > :global(img:first-child) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+  }
+  .hero__flower {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    top: -40px;
+    right: -20px;
+  }
+  .hero__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-24);
+  }
+  .hero__intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+  }
+  .hero__info {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-20) var(--space-16);
+    margin: 0;
+    padding-block: var(--space-24);
+    border-top: var(--border-width) solid var(--border-default);
+  }
+  .hero__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-12) var(--space-32);
+  }
+
+  .rows {
+    display: flex;
+    flex-direction: column;
+  }
+  .row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+    padding-block: var(--space-32);
+    border-top: var(--border-width) solid var(--border-default);
+  }
+  .row--xp {
+    gap: var(--space-24);
+  }
+  .row__title {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+  }
+
+  .edu {
+    display: flex;
+    flex-direction: column;
+  }
+  .edu__block {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+    padding-block: var(--space-24);
+    border-top: var(--border-width) solid var(--border-default);
+  }
+  .edu__block h3 + p {
+    margin-top: var(--space-4);
+  }
+  .course {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-24);
+    padding-block: var(--space-16);
+    border-top: var(--border-width) solid var(--border-subtle);
+  }
+  .course:first-child {
+    border-top: 0;
+  }
+
+  @media (min-width: 900px) {
+    .hero {
+      display: grid;
+      grid-template-columns: 480px minmax(0, 1fr);
+      gap: var(--space-80);
+      align-items: center;
+      padding-top: var(--space-80);
+    }
+    .hero__photo {
+      order: 0;
+      width: 480px;
+    }
+    .hero__flower {
+      width: 180px;
+      height: 180px;
+      top: -60px;
+      right: -60px;
+    }
+    .hero__info {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-24);
+    }
+  }
+</style>

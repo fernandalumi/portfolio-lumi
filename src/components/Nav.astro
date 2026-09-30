@@ -1,0 +1,160 @@
+---
+// Figma: component "Nav" (Breakpoint=Desktop / Breakpoint=Mobile)
+import { nav } from '../data/site';
+
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isActive = (href: string) => (href === '/' ? path === '/' : path === href || path.startsWith(href + '/'));
+---
+
+<header class="nav">
+  <div class="nav__bar">
+    <a href="/" class="nav__logo t-logo" aria-label="Lumi, página inicial">LUMI.</a>
+
+    <nav class="nav__menu" aria-label="Menu principal">
+      <ul>
+        {nav.map((item) => (
+          <li>
+            <a href={item.href} class:list={['nav__item t-nav', { 'is-active': isActive(item.href) }]} aria-current={isActive(item.href) ? 'page' : undefined}>
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Abrir menu">
+      <span></span><span></span>
+    </button>
+  </div>
+
+  <nav id="mobile-menu" class="nav__drawer" aria-label="Menu" hidden>
+    <ul>
+      {nav.map((item) => (
+        <li>
+          <a href={item.href} class:list={['t-h2', { 'is-active': isActive(item.href) }]} aria-current={isActive(item.href) ? 'page' : undefined}>
+            {item.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+</header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('.nav__toggle');
+  const drawer = document.getElementById('mobile-menu');
+  const setOpen = (open: boolean) => {
+    if (!toggle) return;
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
+    if (drawer) drawer.hidden = !open;
+    document.body.classList.toggle('menu-open', open);
+  };
+  toggle?.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && toggle?.getAttribute('aria-expanded') === 'true') {
+      setOpen(false);
+      toggle.focus();
+    }
+  });
+</script>
+
+<style>
+  .nav {
+    position: relative;
+    z-index: 20;
+    background: var(--bg-default);
+  }
+  .nav__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px var(--layout-margin);
+    max-width: calc(var(--layout-content) + 2 * var(--layout-margin));
+    margin-inline: auto;
+  }
+  .nav__logo {
+    color: var(--text-primary);
+  }
+  .nav__menu {
+    display: none;
+  }
+  .nav__menu ul {
+    display: flex;
+    gap: var(--space-48);
+  }
+  .nav__item {
+    position: relative;
+    color: var(--text-primary);
+    transition: color 200ms var(--ease-out);
+  }
+  .nav__item:hover {
+    color: var(--text-hover);
+  }
+  .nav__item::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -4px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 300ms var(--ease-out);
+  }
+  .nav__item.is-active::after,
+  .nav__item:hover::after {
+    transform: scaleX(1);
+  }
+
+  .nav__toggle {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 44px;
+    height: 44px;
+    margin-right: -10px;
+    padding: 0 10px;
+    justify-content: center;
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+  .nav__toggle span {
+    display: block;
+    height: 2px;
+    width: 24px;
+    background: var(--text-primary);
+    transition: transform 250ms var(--ease-out);
+  }
+  .nav__toggle[aria-expanded='true'] span:first-child { transform: translateY(4px) rotate(45deg); }
+  .nav__toggle[aria-expanded='true'] span:last-child { transform: translateY(-4px) rotate(-45deg); }
+
+  .nav__drawer {
+    position: fixed;
+    inset: 69px 0 0 0;
+    background: var(--bg-default);
+    padding: var(--space-32) var(--layout-margin);
+  }
+  .nav__drawer ul {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-24);
+  }
+  .nav__drawer a.is-active {
+    text-decoration: underline;
+    text-underline-offset: 6px;
+    text-decoration-thickness: 1px;
+  }
+
+  @media (min-width: 900px) {
+    .nav__bar { padding-block: 40px; }
+    .nav__menu { display: block; }
+    .nav__toggle, .nav__drawer { display: none; }
+  }
+</style>
+
+<style is:global>
+  body.menu-open { overflow: hidden; }
+</style>

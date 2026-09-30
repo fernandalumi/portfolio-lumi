@@ -1,0 +1,78 @@
+---
+// "Vamos conversar?" box at the end of the Sobre mim page
+import { Image } from 'astro:assets';
+import Button from './Button.astro';
+import TextLink from './TextLink.astro';
+import flower from '../assets/brand/flower-coral.png';
+---
+
+<section class="container cta" aria-labelledby="cta-titulo">
+  <div class="cta__box">
+    <div class="cta__text">
+      <div class="cta__title">
+        <h2 id="cta-titulo" class="t-h1">Vamos conversar?</h2>
+        <Image src={flower} alt="" width={56} height={56} class="flower" />
+      </div>
+      <p class="t-body-lg c-secondary">Estou aberta a oportunidades em times de produto, projetos freelance e parcerias.</p>
+    </div>
+    <div class="cta__links">
+      <Button href="/contato">Entrar em contato →</Button>
+      <TextLink href="/projetos">Ver projetos →</TextLink>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta {
+    padding-block: var(--layout-section);
+  }
+  .cta__box {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-32);
+    padding: var(--space-32);
+    background: var(--bg-subtle);
+    border-radius: var(--radius-16);
+  }
+  .cta__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+    max-width: 950px;
+  }
+  .cta__text p {
+    max-width: 560px;
+  }
+  .cta__title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-16);
+  }
+  .cta__title :global(img) {
+    width: 40px;
+    height: 40px;
+  }
+  .cta__links {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-16);
+  }
+
+  @media (min-width: 900px) {
+    .cta {
+      padding-block: 0 var(--layout-section);
+    }
+    .cta__box {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-48);
+      padding: var(--space-64);
+    }
+    .cta__title :global(img) {
+      width: 56px;
+      height: 56px;
+    }
+  }
+</style>

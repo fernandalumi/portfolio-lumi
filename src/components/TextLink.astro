@@ -1,0 +1,29 @@
+---
+// Figma: component "Link" (State=Default / Hover)
+interface Props {
+  href: string;
+  external?: boolean;
+  class?: string;
+}
+const { href, external = false, class: className } = Astro.props;
+---
+
+<a
+  href={href}
+  class:list={['text-link t-link', className]}
+  {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+>
+  <slot />
+</a>
+
+<style>
+  .text-link {
+    display: inline-flex;
+    gap: var(--space-4);
+    color: var(--text-primary);
+    transition: color 200ms var(--ease-out);
+  }
+  .text-link:hover {
+    color: var(--text-hover);
+  }
+</style>

@@ -1,0 +1,38 @@
+---
+// Dark pill button (Figma: "Botão - Entrar em contato" / "Botão - Enviar")
+interface Props {
+  href?: string;
+  type?: 'button' | 'submit';
+  class?: string;
+}
+const { href, type = 'button', class: className } = Astro.props;
+---
+
+{href ? (
+  <a href={href} class:list={['button t-link', className]}><slot /></a>
+) : (
+  <button type={type} class:list={['button t-link', className]}><slot /></button>
+)}
+
+<style>
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 14px 28px;
+    border: 0;
+    border-radius: var(--radius-full);
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 200ms var(--ease-out), transform 200ms var(--ease-out);
+  }
+  .button:hover {
+    background: var(--neutral-900);
+  }
+  .button:active {
+    transform: scale(0.98);
+  }
+</style>

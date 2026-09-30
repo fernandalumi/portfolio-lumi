@@ -1,0 +1,105 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import TextLink from '../components/TextLink.astro';
+import Ticker from '../components/Ticker.astro';
+import { projects } from '../data/projects';
+import flowerHero from '../assets/brand/flower-hero.png';
+---
+
+<Base>
+  <section class="hero">
+    <Image src={flowerHero} alt="" class="hero__flower flower" widths={[400, 814]} sizes="(min-width: 900px) 800px, 380px" loading="eager" />
+    <div class="container hero__inner">
+      <h1 class="t-display hero__title">
+        Olá, eu sou a <strong>Lumi</strong><br />
+        Crio produtos, interações e design systems
+      </h1>
+    </div>
+  </section>
+
+  <section class="projects container" aria-labelledby="projetos-titulo">
+    <div class="section-header">
+      <h2 id="projetos-titulo" class="t-h2">Projetos selecionados</h2>
+      <TextLink href="/projetos">Ver todos os projetos →</TextLink>
+    </div>
+    <div class="grid">
+      {projects.map((p, i) => <ProjectCard project={p} eager={i < 2} />)}
+    </div>
+  </section>
+
+  <Ticker />
+</Base>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+  }
+  .hero__flower {
+    position: absolute;
+    width: 380px;
+    height: auto;
+    left: 110px;
+    top: -30px;
+  }
+  .hero__inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding-top: 160px;
+    padding-bottom: var(--space-24);
+  }
+  .hero__title strong {
+    font-weight: 500;
+  }
+
+  .projects {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-32);
+    padding-block: var(--layout-section);
+  }
+  .section-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-40);
+  }
+
+  @media (min-width: 768px) {
+    .grid {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-48);
+    }
+  }
+
+  @media (min-width: 900px) {
+    /* Figma: flower 797px wide, 643px from the left edge of the 1440 frame */
+    .hero__flower {
+      width: 797px;
+      left: calc(50% - 77px);
+      top: 0;
+    }
+    .hero__inner {
+      min-height: 750px;
+      padding-block: var(--space-56);
+      padding-inline: calc(var(--layout-margin) + 32px);
+    }
+    .projects {
+      gap: var(--space-56);
+      padding-top: var(--space-120);
+      padding-bottom: 130px;
+    }
+    .section-header {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+  }
+</style>

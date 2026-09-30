@@ -1,0 +1,30 @@
+---
+import Base from '../layouts/Base.astro';
+import TextLink from '../components/TextLink.astro';
+---
+
+<Base title="Página não encontrada">
+  <section class="container notfound">
+    <p class="t-eyebrow c-tertiary">Erro 404</p>
+    <h1 class="t-display">Esta página não existe ou mudou de lugar.</h1>
+    <div class="links">
+      <TextLink href="/">Voltar ao início →</TextLink>
+      <TextLink href="/projetos">Ver projetos →</TextLink>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .notfound {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-24);
+    padding-block: var(--layout-section);
+    max-width: calc(820px + 2 * var(--layout-margin));
+    margin-inline: 0;
+  }
+  .links {
+    display: flex;
+    gap: var(--space-32);
+  }
+</style>

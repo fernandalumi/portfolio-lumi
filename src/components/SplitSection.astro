@@ -1,0 +1,52 @@
+---
+// Section with the header on the left (eyebrow + title) and content on the right.
+// Used on the Sobre mim page (O que eu faço, Experiência, Habilidades, Formação).
+interface Props {
+  eyebrow: string;
+  title: string;
+  subtle?: boolean;
+  id?: string;
+}
+const { eyebrow, title, subtle = false, id } = Astro.props;
+---
+
+<section class:list={['split', { 'is-subtle': subtle }]} aria-labelledby={id}>
+  <div class="container split__inner">
+    <header class="split__header">
+      <p class="t-eyebrow c-tertiary">{eyebrow}</p>
+      <h2 id={id} class="t-h2" set:html={title} />
+    </header>
+    <div class="split__content">
+      <slot />
+    </div>
+  </div>
+</section>
+
+<style>
+  .split.is-subtle {
+    background: var(--bg-subtle);
+  }
+  .split__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-32);
+    padding-block: var(--space-56);
+  }
+  .split__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+  }
+  .split__content {
+    min-width: 0;
+  }
+
+  @media (min-width: 900px) {
+    .split__inner {
+      display: grid;
+      grid-template-columns: minmax(0, 504fr) minmax(0, 760fr);
+      gap: var(--space-48);
+      padding-block: var(--layout-section);
+    }
+  }
+</style>
