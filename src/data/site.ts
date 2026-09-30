@@ -14,7 +14,7 @@ export const site = {
   cv: '/curriculo-fernanda-lumi-sato.pdf',
   // Endereço do serviço que recebe o formulário de contato (ex.: Formspree).
   // Enquanto estiver vazio, o botão "Enviar" abre o app de e-mail da pessoa com a mensagem pronta.
-  formEndpoint: '',
+  formEndpoint: 'https://formspree.io/f/xbglwnol',
 };
 
 export const nav = [

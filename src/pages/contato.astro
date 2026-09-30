@@ -87,6 +87,8 @@ const subjects = ['Oportunidade de trabalho', 'Projeto freelance', 'Design syste
         <p class="t-body-sm c-secondary">Prefere e-mail direto? Escreva para <a href={`mailto:${site.email}`} class="inline-link">{site.email}</a></p>
       </div>
       <p class="form__status t-body c-secondary" role="status" aria-live="polite"></p>
+      <!-- Campo invisível contra spam: pessoas não veem nem preenchem, robôs sim -->
+      <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />
     </form>
   </section>
 </Base>
@@ -106,14 +108,25 @@ const subjects = ['Oportunidade de trabalho', 'Projeto freelance', 'Design syste
       window.location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       return;
     }
+    // Assunto do e-mail que chega na caixa de entrada (campo especial do Formspree)
+    data.set('_subject', `Portfólio · ${data.get('assunto')} · ${data.get('nome')}`);
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    if (button) button.disabled = true;
     if (status) status.textContent = 'Enviando…';
     try {
       const res = await fetch(endpoint, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const json = await res.json().catch(() => null);
+        const msg = json?.errors?.map((e: { message: string }) => e.message).join(' ');
+        throw new Error(msg || '');
+      }
       form.reset();
       if (status) status.textContent = 'Mensagem enviada. Obrigada! Respondo por e-mail.';
-    } catch {
-      if (status) status.textContent = `Não foi possível enviar agora. Escreva para ${form.dataset.email}.`;
+    } catch (err) {
+      const detail = err instanceof Error && err.message ? ` (${err.message})` : '';
+      if (status) status.textContent = `Não foi possível enviar agora${detail}. Escreva para ${form.dataset.email}.`;
+    } finally {
+      if (button) button.disabled = false;
     }
   });
 </script>
