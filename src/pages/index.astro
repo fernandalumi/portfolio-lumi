@@ -14,7 +14,7 @@ import flowerHero from '../assets/brand/flower-hero.png';
     <div class="container hero__inner">
       <h1 class="t-display hero__title">
         Olá, eu sou a <strong>Lumi</strong><br />
-        Projeto produtos digitais, interfaces e design system.
+        Projeto produtos digitais, interfaces e <span class="nowrap">design system.</span>
       </h1>
     </div>
   </section>
@@ -82,6 +82,9 @@ import flowerHero from '../assets/brand/flower-hero.png';
     padding-top: 160px;
     padding-bottom: var(--space-24);
   }
+  .hero__title .nowrap {
+    white-space: nowrap;
+  }
   .hero__title strong {
     font-weight: 500;
   }
@@ -120,7 +123,6 @@ import flowerHero from '../assets/brand/flower-hero.png';
     .hero__inner {
       min-height: 750px;
       padding-block: var(--space-56);
-      padding-inline: calc(var(--layout-margin) + 32px);
     }
     .projects {
       gap: var(--space-56);
