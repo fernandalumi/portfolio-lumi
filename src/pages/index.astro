@@ -10,7 +10,7 @@ import flowerHero from '../assets/brand/flower-hero.png';
 
 <Base>
   <section class="hero">
-    <Image src={flowerHero} alt="" class="hero__flower flower" widths={[400, 814]} sizes="(min-width: 900px) 800px, 380px" loading="eager" />
+    <Image src={flowerHero} alt="" class="hero__flower flower" widths={[400, 814]} sizes="(min-width: 900px) 917px, 380px" loading="eager" />
     <div class="container hero__inner">
       <h1 class="t-display hero__title">
         Olá, eu sou a <strong>Lumi</strong><br />
@@ -37,12 +37,14 @@ import flowerHero from '../assets/brand/flower-hero.png';
   // and exactly at 0° when the page is at the top. A light easing keeps the motion soft.
   const flower = document.querySelector<HTMLElement>('.hero__flower');
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const DEG_PER_PX = 0.18; // about 135° after scrolling past the hero
+  // Degrees per pixel scrolled: slower on desktop (about 100° across the hero), a bit faster on mobile
+  const desktop = window.matchMedia('(min-width: 900px)');
+  const degPerPx = () => (desktop.matches ? 0.135 : 0.18);
   const EASE = 0.12; // 0-1, lower is softer
   let current = 0;
   let frame = 0;
   const tick = () => {
-    const target = window.scrollY * DEG_PER_PX;
+    const target = window.scrollY * degPerPx();
     current += (target - current) * EASE;
     if (Math.abs(target - current) < 0.05) current = target;
     flower!.style.transform = `rotate(${current.toFixed(2)}deg)`;
@@ -105,11 +107,12 @@ import flowerHero from '../assets/brand/flower-hero.png';
   }
 
   @media (min-width: 900px) {
-    /* Figma: flower 797px wide, 643px from the left edge of the 1440 frame */
+    /* Figma: flower 797px wide, 643px from the left edge of the 1440 frame.
+       Shown 15% larger (917px) around the same center. */
     .hero__flower {
-      width: 797px;
-      left: calc(50% - 77px);
-      top: 0;
+      width: 917px;
+      left: calc(50% - 137px);
+      top: -59px;
     }
     .hero__inner {
       min-height: 750px;
