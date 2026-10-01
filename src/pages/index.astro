@@ -32,6 +32,29 @@ import flowerHero from '../assets/brand/flower-hero.png';
   <Ticker />
 </Base>
 
+<script>
+  // Hero flower turns with the scroll: clockwise going down, back counterclockwise going up,
+  // and exactly at 0° when the page is at the top. A light easing keeps the motion soft.
+  const flower = document.querySelector<HTMLElement>('.hero__flower');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const DEG_PER_PX = 0.18; // about 135° after scrolling past the hero
+  const EASE = 0.12; // 0-1, lower is softer
+  let current = 0;
+  let frame = 0;
+  const tick = () => {
+    const target = window.scrollY * DEG_PER_PX;
+    current += (target - current) * EASE;
+    if (Math.abs(target - current) < 0.05) current = target;
+    flower!.style.transform = `rotate(${current.toFixed(2)}deg)`;
+    frame = current === target ? 0 : requestAnimationFrame(tick);
+  };
+  const onScroll = () => { if (!frame) frame = requestAnimationFrame(tick); };
+  if (flower && !reduce.matches) {
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+</script>
+
 <style>
   .hero {
     position: relative;
@@ -43,6 +66,8 @@ import flowerHero from '../assets/brand/flower-hero.png';
     height: auto;
     left: 110px;
     top: -30px;
+    transform-origin: 50% 50%;
+    will-change: transform;
   }
   .hero__inner {
     position: relative;
