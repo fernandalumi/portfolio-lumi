@@ -10,7 +10,7 @@ import flowerHero from '../assets/brand/flower-hero.png';
 
 <Base>
   <section class="hero">
-    <Image src={flowerHero} alt="" class="hero__flower flower" widths={[400, 814]} sizes="(min-width: 900px) 917px, 380px" loading="eager" />
+    <Image src={flowerHero} alt="" class="hero__flower flower" widths={[400, 800, 1200, 1600, 2400]} sizes="(min-width: 900px) 917px, 437px" quality={92} loading="eager" />
     <div class="container hero__inner">
       <h1 class="t-display hero__title">
         Olá, eu sou a <strong>Lumi</strong><br />
@@ -33,13 +33,16 @@ import flowerHero from '../assets/brand/flower-hero.png';
 </Base>
 
 <script>
-  // Hero flower turns with the scroll: clockwise going down, back counterclockwise going up,
-  // and exactly at 0° when the page is at the top. A light easing keeps the motion soft.
+  // Hero flower turns with the scroll (clockwise going down, back counterclockwise going up)
+  // and grows up to 15% while the hero scrolls away, returning to 0° and 100% at the top.
+  // A light easing keeps the motion soft.
   const flower = document.querySelector<HTMLElement>('.hero__flower');
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   // Degrees per pixel scrolled: slower on desktop (about 100° across the hero), a bit faster on mobile
   const desktop = window.matchMedia('(min-width: 900px)');
   const degPerPx = () => (desktop.matches ? 0.135 : 0.18);
+  const GROW = 0.15; // +15% at full growth
+  const GROW_DISTANCE = 600; // px of scroll to reach full growth
   const EASE = 0.12; // 0-1, lower is softer
   let current = 0;
   let frame = 0;
@@ -47,7 +50,8 @@ import flowerHero from '../assets/brand/flower-hero.png';
     const target = window.scrollY * degPerPx();
     current += (target - current) * EASE;
     if (Math.abs(target - current) < 0.05) current = target;
-    flower!.style.transform = `rotate(${current.toFixed(2)}deg)`;
+    const scale = 1 + GROW * Math.min(current / degPerPx() / GROW_DISTANCE, 1);
+    flower!.style.transform = `rotate(${current.toFixed(2)}deg) scale(${scale.toFixed(4)})`;
     frame = current === target ? 0 : requestAnimationFrame(tick);
   };
   const onScroll = () => { if (!frame) frame = requestAnimationFrame(tick); };
@@ -107,12 +111,11 @@ import flowerHero from '../assets/brand/flower-hero.png';
   }
 
   @media (min-width: 900px) {
-    /* Figma: flower 797px wide, 643px from the left edge of the 1440 frame.
-       Shown 15% larger (917px) around the same center. */
+    /* Figma: flower 797px wide, 643px from the left edge of the 1440 frame */
     .hero__flower {
-      width: 917px;
-      left: calc(50% - 137px);
-      top: -59px;
+      width: 797px;
+      left: calc(50% - 77px);
+      top: 0;
     }
     .hero__inner {
       min-height: 750px;
