@@ -16,7 +16,7 @@
   --blue-400: #7da7d9;
   --red-400: #d97d7f;
   --pink-400: #d97dab;
-  --pink-600: #b8487f; /* deeper pink: 4.9:1 contrast with white text (cursor tag) */
+  --blue-700: #1960a3; /* deep blue: cursor dot and tag, white text on top */
 
   /* Color (semantic) */
   --bg-default: var(--neutral-0);
