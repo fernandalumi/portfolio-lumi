@@ -1,6 +1,7 @@
 ---
 // Figma: component "Ticker row" (Default / Variant2). Two rows moving in opposite
-// directions, about 40s per loop, paused when the visitor prefers reduced motion.
+// directions, paused when the visitor prefers reduced motion. Each row repeats its
+// content 4 times so it never runs out, even on very wide or zoomed-out screens.
 // Images come from the component (exported at 4x into src/assets/brand/ticker/).
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
@@ -25,7 +26,7 @@ const rows: Item[][] = [
   {rows.map((items, i) => (
     <div class:list={['ticker__lane', { 'is-first': i === 0 }]} aria-hidden="true">
     <div class:list={['ticker__row', { 'is-reverse': i % 2 === 1 }]}>
-      {[0, 1].map(() => (
+      {[0, 1, 2, 3].map(() => (
         <div class="ticker__track">
           {items.map((it) =>
             'word' in it ? <span class="t-ticker">{it.word}</span>
@@ -59,7 +60,7 @@ const rows: Item[][] = [
   .ticker__row {
     display: flex;
     width: max-content;
-    animation: ticker 40s linear infinite;
+    animation: ticker 40s linear infinite; /* one copy of the content every 40s, same speed as before */
   }
   .ticker__row.is-reverse {
     animation-direction: reverse;
@@ -88,7 +89,7 @@ const rows: Item[][] = [
   }
   @keyframes ticker {
     from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
+    to { transform: translateX(-25%); }
   }
   @media (prefers-reduced-motion: reduce) {
     .ticker__row { animation: none; }
