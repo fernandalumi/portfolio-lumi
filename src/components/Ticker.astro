@@ -23,7 +23,8 @@ const rows: Item[][] = [
 
 <section class="ticker" aria-label="Intenção, perspectiva, curiosidade, propósito, experiência, solução, impacto, função">
   {rows.map((items, i) => (
-    <div class:list={['ticker__row', i % 2 ? 'is-reverse' : 'is-first']} aria-hidden="true">
+    <div class:list={['ticker__lane', { 'is-first': i === 0 }]} aria-hidden="true">
+    <div class:list={['ticker__row', { 'is-reverse': i % 2 === 1 }]}>
       {[0, 1].map(() => (
         <div class="ticker__track">
           {items.map((it) =>
@@ -33,6 +34,7 @@ const rows: Item[][] = [
           )}
         </div>
       ))}
+    </div>
     </div>
   ))}
 </section>
@@ -46,14 +48,18 @@ const rows: Item[][] = [
     padding-bottom: var(--space-80);
     overflow: hidden;
   }
+  /* The lane stays still and carries the lines; only the row inside it moves */
+  .ticker__lane {
+    overflow: hidden;
+    border-bottom: var(--border-width) solid var(--border-default);
+  }
+  .ticker__lane.is-first {
+    border-top: var(--border-width) solid var(--border-default);
+  }
   .ticker__row {
     display: flex;
     width: max-content;
-    border-bottom: var(--border-width) solid var(--border-default);
     animation: ticker 40s linear infinite;
-  }
-  .ticker__row.is-first {
-    border-top: var(--border-width) solid var(--border-default);
   }
   .ticker__row.is-reverse {
     animation-direction: reverse;
