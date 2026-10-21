@@ -38,9 +38,9 @@ import flowerHero from '../assets/brand/flower-hero.png';
   // A light easing keeps the motion soft.
   const flower = document.querySelector<HTMLElement>('.hero__flower');
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-  // Degrees per pixel scrolled: slower on desktop (about 100° across the hero), a bit faster on mobile
+  // Degrees per pixel scrolled: slower on desktop (about 75° across the hero), a bit faster on mobile
   const desktop = window.matchMedia('(min-width: 900px)');
-  const degPerPx = () => (desktop.matches ? 0.135 : 0.18);
+  const degPerPx = () => (desktop.matches ? 0.1 : 0.135);
   const GROW = 0.15; // +15% at full growth
   const GROW_DISTANCE = 600; // px of scroll to reach full growth
   const EASE = 0.12; // 0-1, lower is softer
