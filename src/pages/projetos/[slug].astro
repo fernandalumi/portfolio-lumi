@@ -21,20 +21,53 @@ const mobile = trees[`/src/content/cases/${project.slug}-m.json`]?.default;
 const nextHref = `/projetos/${next.slug}`;
 const ctxD = { mobile: false, nextHref, state: { h1: false, firstImg: false } };
 const ctxM = { mobile: true, nextHref, state: { h1: false, firstImg: false } };
+// Cases where every image opens larger on click
+const zoomable = ['catharine-hill'].includes(project.slug);
 ---
 
 <Base title={project.title} description={project.description}>
   {desktop && (
-    <div class="case case--d">
+    <div class="case case--d" data-zoomable={zoomable ? '' : undefined}>
       {desktop.c.map((node) => <FigmaNode node={node} parentDir="V" ctx={ctxD} />)}
     </div>
   )}
   {mobile && (
-    <div class="case case--m">
+    <div class="case case--m" data-zoomable={zoomable ? '' : undefined}>
       {mobile.c.map((node) => <FigmaNode node={node} parentDir="V" ctx={ctxM} />)}
     </div>
   )}
+  {zoomable && (
+    <dialog class="lb" aria-label="Imagem ampliada">
+      <button type="button" class="lb-x" aria-label="Fechar">×</button>
+      <img alt="" />
+    </dialog>
+  )}
 </Base>
+
+<script>
+  // Lightbox: images open larger on click; stages with a recording play the interaction
+  const dlg = document.querySelector<HTMLDialogElement>('dialog.lb');
+  if (dlg) {
+    const big = dlg.querySelector('img')!;
+    const open = (src: string, alt: string) => { big.src = src; big.alt = alt; dlg.showModal(); };
+    const largest = (img: HTMLImageElement) => {
+      const set = img.srcset.split(',').map((s) => s.trim().split(/\s+/)).filter((p) => p[0]);
+      set.sort((a, b) => parseInt(b[1] ?? '0') - parseInt(a[1] ?? '0'));
+      return set[0]?.[0] ?? img.currentSrc ?? img.src;
+    };
+    document.querySelectorAll<HTMLElement>('[data-zoomable]').forEach((root) => {
+      root.addEventListener('click', (e) => {
+        const t = e.target as HTMLElement;
+        const play = t.closest<HTMLElement>('[data-motion]');
+        if (play) { open(play.dataset.motion!, 'Gravação da interação'); return; }
+        const img = t.closest<HTMLImageElement>('img[data-zoom]');
+        if (img) open(largest(img), img.alt);
+      });
+      root.querySelectorAll<HTMLImageElement>('img[data-zoom]').forEach((img) => { img.style.cursor = 'zoom-in'; });
+    });
+    dlg.addEventListener('click', (e) => { if (e.target === dlg || (e.target as HTMLElement).closest('.lb-x')) dlg.close(); });
+  }
+</script>
 
 <style>
   .case {
@@ -59,5 +92,21 @@ const ctxM = { mobile: true, nextHref, state: { h1: false, firstImg: false } };
   @media (max-width: 899px) {
     .case--d { display: none; }
     .case--m { display: flex; }
+  }
+  .case :global(.fx-motion) { position: relative; margin: 0; }
+  .case :global(.fx-motion img) { width: 100%; height: auto; display: block; border-radius: inherit; }
+  .case :global(.fx-play) {
+    position: absolute; left: 24px; bottom: 24px; display: inline-flex; align-items: center; gap: 8px;
+    border: 0; border-radius: 999px; padding: 10px 16px; background: #202224; color: #fff;
+    font: 500 14px/1 var(--font-text); cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,.18);
+  }
+  .case--m :global(.fx-play) { left: 12px; bottom: 12px; padding: 8px 12px; font-size: 13px; }
+  .case :global(.fx-play:focus-visible) { outline: 2px solid #00708c; outline-offset: 3px; }
+  .lb { border: 0; padding: 0; background: transparent; max-width: min(96vw, 1600px); max-height: 94vh; overflow: visible; }
+  .lb::backdrop { background: rgba(10,10,10,.82); }
+  .lb img { display: block; max-width: min(96vw, 1600px); max-height: 94vh; width: auto; height: auto; border-radius: 8px; }
+  .lb-x {
+    position: absolute; top: -14px; right: -14px; width: 36px; height: 36px; border-radius: 50%; border: 0;
+    background: #fff; color: #202224; font: 400 22px/1 var(--font-text); cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,.3);
   }
 </style>

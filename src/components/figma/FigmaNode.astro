@@ -5,6 +5,37 @@
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import { caseImages } from './images';
+import ProtoWindow from '../case/ProtoWindow.astro';
+import Compare from '../case/Compare.astro';
+
+// Interactive blocks that replace a Figma stage on the site, matched by the stage name
+const CH = '/cases/catharine-hill/';
+const PROTO: Record<string, { base: string; pages: { label: string; path: string }[] }> = {
+  'Palco - Protótipo navegável': {
+    base: '/prototipos/catharine-hill/',
+    pages: [
+      { label: 'Home', path: 'home/index.html' },
+      { label: 'Categoria', path: 'internas/categoria-bases.html' },
+      { label: 'Produto', path: 'internas/produto-base-alta-cobertura.html' },
+      { label: 'Sacola', path: 'internas/sacola.html' },
+      { label: 'Checkout', path: 'internas/checkout.html' },
+    ],
+  },
+};
+const COMPARE: Record<string, { label: string; slug: string }> = {
+  'Palco - Home': { label: 'Home', slug: 'home' },
+  'Palco - Página de produto': { label: 'Página de produto', slug: 'pdp' },
+};
+// Short interaction recordings (animated WebP) shown on top of a stage when clicked
+const MOTION: Record<string, string> = {
+  'Palco - Navegação por categoria': CH + 'v-mega.webp',
+  'Palco - Escolher o tom certo': CH + 'v-subtom.webp',
+  'Palco - Ver a cobertura antes de comprar': CH + 'v-antesdepois.webp',
+  'Palco - Cards com prova': CH + 'v-cards.webp',
+  'Palco - Uma vitrine para o público artístico': CH + 'v-arthill.webp',
+  'Palco - A marca no lugar certo': CH + 'v-mani.webp',
+  'Palco - Sacola e checkout sem surpresa': CH + 'v-checkout.webp',
+};
 
 export interface FNode {
   k: 1 | 2 | 3;
@@ -14,8 +45,8 @@ export interface FNode {
   d?: 'H' | 'V'; g?: number; cg?: number; wr?: 1; p?: number[]; ax?: string; bg?: string; bd?: [number | number[], string]; dash?: 1; sh?: string; clip?: 1; c?: FNode[]; inst?: 1;
   // text
   s?: string; x?: string; sg?: Seg[]; c2?: string; al?: string; nw?: 1; tr?: 1;
-  // image
-  key?: string; alt?: string;
+  // image (raster key) or inline vector (svg markup)
+  key?: string; alt?: string; svg?: string;
 }
 interface Seg { x: string; c?: string; ff?: string; fs?: number; lh?: number; ls?: string; tc?: 'u'; fw?: number; it?: 1; u?: 1; st?: 1 }
 
@@ -32,6 +63,7 @@ const ALIGN: Record<string, string> = { s: 'flex-start', c: 'center', e: 'flex-e
 const FONT: Record<string, string> = {
   Anuphan: 'var(--font-heading)', Inter: 'var(--font-text)',
   Manrope: "'Manrope Variable', 'Manrope', sans-serif", 'Playfair Display': "'Playfair Display Variable', 'Playfair Display', serif",
+  Barlow: "'Barlow', sans-serif", 'Barlow Condensed': "'Barlow Condensed', 'Arial Narrow', sans-serif",
 };
 const STYLE_CLASS: Record<string, string> = {
   'heading/display': 't-display', 'heading/h1': 't-h1', 'heading/h2': 't-h2', 'heading/h3': 't-h3', 'heading/h4': 't-h4',
@@ -158,6 +190,10 @@ if (node.k === 3) {
 }
 const Tag = tag as any;
 const TextTag = textTag as any;
+const proto = node.k === 3 && node.n ? PROTO[node.n] : undefined;
+const compare = node.k === 3 && node.n ? COMPARE[node.n] : undefined;
+const motion = node.k === 3 && node.n ? MOTION[node.n] : undefined;
+const svgStyle = node.k === 3 && node.svg ? [...sizing, `width:${px(node.W ?? 0)}`, `height:${px(node.H ?? 0)}`, 'flex-shrink:0', 'display:block', 'line-height:0'].join(';') : '';
 ---
 
 {node.k === 1 && (
@@ -166,7 +202,17 @@ const TextTag = textTag as any;
   </Tag>
 )}
 {node.k === 2 && <TextTag class={textClass || undefined} style={textStyle} set:html={textHtml} />}
-{node.k === 3 && img && (
-  <Image src={img} alt={node.alt ?? ''} widths={widths} sizes={sizes} style={imgStyle} loading={eager ? 'eager' : 'lazy'} decoding="async" />
+{node.k === 3 && node.svg && <span style={svgStyle} aria-hidden="true" set:html={node.svg} />}
+{proto && <ProtoWindow base={proto.base} pages={proto.pages} poster={img} mobile={ctx.mobile} W={node.W ?? 1312} H={node.H ?? 777} />}
+{compare && <Compare label={compare.label} mobile={ctx.mobile} before={`${CH}antes-${compare.slug}-${ctx.mobile ? 'm' : 'd'}.webp`} after={`${CH}depois-${compare.slug}-${ctx.mobile ? 'm' : 'd'}.webp`} />}
+{node.k === 3 && !node.svg && !proto && !compare && img && (
+  motion ? (
+    <figure class="fx-motion" style={imgStyle}>
+      <Image src={img} alt={node.alt ?? ''} widths={widths} sizes={sizes} loading="lazy" decoding="async" data-zoom />
+      <button type="button" class="fx-play" data-motion={motion}><span aria-hidden="true">▶</span> Ver a interação</button>
+    </figure>
+  ) : (
+    <Image src={img} alt={node.alt ?? ''} widths={widths} sizes={sizes} style={imgStyle} loading={eager ? 'eager' : 'lazy'} decoding="async" data-zoom />
+  )
 )}
-{node.k === 3 && !img && <div style={imgStyle + ';background:var(--bg-subtle)'} data-missing-image={node.key}></div>}
+{node.k === 3 && !node.svg && !proto && !compare && !img && <div style={imgStyle + ';background:var(--bg-subtle)'} data-missing-image={node.key}></div>}

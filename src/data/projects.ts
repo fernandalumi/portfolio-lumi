@@ -1,6 +1,7 @@
 // Lista de projetos exibida na Home e na página Projetos.
 // A ordem aqui é a ordem em que aparecem no site.
 import type { ImageMetadata } from 'astro';
+import catharineHill from '../assets/home/card-catharine-hill.webp';
 import lattafa from '../assets/home/card-lattafa.png';
 import whiteMartins from '../assets/home/card-white-martins.png';
 import uiDesign from '../assets/home/card-ui-design-customizacao.png';
@@ -21,6 +22,16 @@ export interface Project {
 }
 
 export const projects: Project[] = [
+  {
+    slug: 'catharine-hill',
+    title: 'Catharine Hill',
+    description:
+      'Redesign conceitual do e-commerce de uma marca brasileira de maquiagem profissional, da auditoria ao protótipo navegável em código.',
+    tags: ['UX/UI Design', 'E-commerce', 'Protótipo navegável'],
+    categories: ['E-commerce', 'Identidade visual', 'Interação e componentes'],
+    image: catharineHill,
+    imageAlt: 'Home do redesign da Catharine Hill em uma janela de navegador e no celular, com o banner do Blush Líquido',
+  },
   {
     slug: 'lattafa',
     title: 'Lattafa',
