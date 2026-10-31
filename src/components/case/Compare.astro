@@ -24,9 +24,9 @@ const { before, after, label, mobile = false } = Astro.props;
 </script>
 
 <style>
-  .cmp { align-self: stretch; background: #f2f2f3; border-radius: 32px; padding: 40px; }
+  .cmp { --p: 50%; align-self: stretch; background: #f2f2f3; border-radius: 32px; padding: 40px; }
   .cmp--m { border-radius: 20px; padding: 16px; }
-  .cmp-frame { --p: 50%; position: relative; border-radius: 12px; overflow: hidden; box-shadow: 0 24px 64px rgba(0,0,0,.14), 0 2px 6px rgba(0,0,0,.1); background: #fff; }
+  .cmp-frame { position: relative; border-radius: 12px; overflow: hidden; box-shadow: 0 24px 64px rgba(0,0,0,.14), 0 2px 6px rgba(0,0,0,.1); background: #fff; }
   .cmp--m .cmp-frame { max-width: 320px; margin: 0 auto; border-radius: 24px; }
   .cmp-frame img { display: block; width: 100%; height: auto; }
   .cmp-before { position: absolute; inset: 0; clip-path: inset(0 calc(100% - var(--p)) 0 0); }
