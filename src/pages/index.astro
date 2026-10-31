@@ -4,6 +4,7 @@ import Base from '../layouts/Base.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import TextLink from '../components/TextLink.astro';
 import Ticker from '../components/Ticker.astro';
+import Clients from '../components/Clients.astro';
 import { projects } from '../data/projects';
 import flowerHero from '../assets/brand/flower-hero.png';
 ---
@@ -18,6 +19,8 @@ import flowerHero from '../assets/brand/flower-hero.png';
       </h1>
     </div>
   </section>
+
+  <Clients />
 
   <section class="projects container" aria-labelledby="projetos-titulo">
     <div class="section-header">

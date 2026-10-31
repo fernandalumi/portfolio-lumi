@@ -1,0 +1,94 @@
+---
+// Client logos in a grey loop, shown before the projects. The list repeats four times so the
+// row never runs out on wide screens; the extra copies are hidden from screen readers. Pauses on hover and
+// stays still when the visitor prefers reduced motion.
+import type { ImageMetadata } from 'astro';
+import itatiaia from '../assets/clients/itatiaia.svg';
+import lattafa from '../assets/clients/lattafa.svg';
+import whiteMartins from '../assets/clients/white-martins.svg';
+import balaroti from '../assets/clients/balaroti.svg';
+import milium from '../assets/clients/milium.png';
+
+// h: logo height in px on desktop, tuned so the marks look the same size side by side
+const clients: { name: string; src: ImageMetadata; h: number; raster?: boolean }[] = [
+  { name: 'Itatiaia', src: itatiaia, h: 26 },
+  { name: 'Lattafa', src: lattafa, h: 46 },
+  { name: 'Linde White Martins', src: whiteMartins, h: 30 },
+  { name: 'Balaroti', src: balaroti, h: 38 },
+  { name: 'Milium', src: milium, h: 40, raster: true },
+];
+---
+
+<section class="clients" aria-labelledby="clientes-titulo">
+  <h2 id="clientes-titulo" class="t-label clients__title container">Marcas com quem já trabalhei</h2>
+  <div class="clients__lane">
+    <div class="clients__row">
+      {[0, 1, 2, 3].map((copy) => (
+        <ul class="clients__track" aria-hidden={copy > 0 ? 'true' : undefined}>
+          {clients.map((c) => (
+            <li>
+              <img src={c.src.src} alt={copy === 0 ? c.name : ''} width={Math.round((c.src.width / c.src.height) * c.h)} height={c.h} style={`--h:${c.h}px`} class:list={{ 'is-raster': c.raster }} loading="lazy" decoding="async" />
+            </li>
+          ))}
+        </ul>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .clients {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-24);
+    padding-top: var(--space-48);
+  }
+  .clients__title {
+    color: var(--text-muted);
+  }
+  /* soft fade on both edges so logos enter and leave without a hard cut */
+  .clients__lane {
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  }
+  .clients__row {
+    display: flex;
+    width: max-content;
+    animation: clients 32s linear infinite;
+  }
+  .clients__lane:hover .clients__row {
+    animation-play-state: paused;
+  }
+  .clients__track {
+    display: flex;
+    align-items: center;
+    gap: var(--space-80);
+    padding-right: var(--space-80);
+    margin: 0;
+    list-style: none;
+    flex-shrink: 0;
+  }
+  .clients__track img {
+    display: block;
+    width: auto;
+    height: calc(var(--h) * 0.8);
+  }
+  /* Milium only exists as a color bitmap: turn it grey to match the vector logos */
+  .clients__track img.is-raster {
+    filter: grayscale(1) contrast(0.4) brightness(1.55);
+  }
+  @keyframes clients {
+    from { transform: translateX(0); }
+    to { transform: translateX(-25%); }
+  }
+  @media (min-width: 900px) {
+    .clients { padding-top: var(--space-56); }
+    .clients__track { gap: 120px; padding-right: 120px; }
+    .clients__track img { height: var(--h); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .clients__row { animation: none; }
+    .clients__lane { overflow-x: auto; }
+  }
+</style>
