@@ -1,6 +1,6 @@
 ---
-// Figma: "Wireframes da Home, rodada 10", section Hero. Blurred flower with connectors; on
-// desktop each point opens a focus panel over the blurred hero.
+// Hero: title spread across the page over a mist drawn in the browser, with the blurred flower
+// and its connectors above it. On desktop each point opens a focus panel over the blurred hero.
 import { Image } from 'astro:assets';
 import { hero } from '../../data/home';
 import { caseImages } from '../figma/images';
@@ -15,11 +15,18 @@ const path = (p: (typeof hero.points)[number]) => {
 ---
 
 <section class="hero" data-hero>
+  <svg class="hero__fog" aria-hidden="true">
+    <filter id="hero-nevoa" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.0026 0.0048" numOctaves="5" seed="11" />
+      <feColorMatrix values="0 0 0 0 0.62  0 0 0 0 0.69  0 0 0 0 0.76  1.9 0 0 0 -0.72" />
+    </filter>
+    <rect width="100%" height="100%" filter="url(#hero-nevoa)" />
+  </svg>
   <div class="hero__stage">
     <div class="hero__flower" aria-hidden="true">
       <div class="hero__petals">{petals.map((a) => <i style={`--a:${a}deg`}></i>)}</div>
     </div>
-    <svg class="hero__lines" viewBox="0 0 860 900" fill="none" aria-hidden="true">
+    <svg class="hero__lines" viewBox="0 0 860 620" fill="none" aria-hidden="true">
       {hero.points.map((p) => <path d={path(p)} />)}
     </svg>
     {hero.points.map((p, i) => (
@@ -31,13 +38,17 @@ const path = (p: (typeof hero.points)[number]) => {
   </div>
 
   <div class="container hero__inner">
-    <h1 class="t-display hero__title">
-      {hero.greeting}<br />
-      {hero.title} <span class="t-accent">{hero.titleAccent}</span>
-    </h1>
     <p class="t-body-lg c-secondary hero__text">{hero.text}</p>
-    <a href={hero.cta.href} class="hero__cta">{hero.cta.label}</a>
+    <h1 class="headline">
+      <span class="headline__intro">{hero.greeting}<br />{hero.titleIntro}</span>{' '}
+      <span class="headline__line"><span>{hero.titleA}</span> <span>{hero.titleB}</span></span>{' '}
+      <span class="headline__line headline__line--b"><span>{hero.titleC}</span> <span class="headline__accent">{hero.titleAccent}</span></span>
+    </h1>
+    <a href={hero.cta.href} class="hero__cta">{hero.cta.label} <i aria-hidden="true">↓</i></a>
   </div>
+
+  <span class="star star--large" style="--sx:15%;--sy:128px;--ss:260px" aria-hidden="true"></span>
+  <span class="star" style="--sx:21%;--sy:30px;--ss:110px;--sd:-3s" aria-hidden="true"></span>
 
   <div class="hero__veil" aria-hidden="true"></div>
   {hero.points.map((p, i) => (
@@ -98,55 +109,50 @@ const path = (p: (typeof hero.points)[number]) => {
     overflow: hidden;
     min-height: 720px;
     display: flex;
-    align-items: center;
-    padding-top: 80px;
-    background: var(--bg-default);
-  }
-  /* Blue light over the base color. It fades out before the hero ends, so it never cuts
-     against the next section, and it drifts very slowly. */
-  .hero::before {
-    content: '';
-    position: absolute;
-    inset: -6%;
+    flex-direction: column;
+    justify-content: flex-end;
     background:
-      radial-gradient(24% 30% at 98% 46%, var(--hero-c), transparent 74%),
-      radial-gradient(26% 34% at 6% 78%, var(--hero-spot, var(--hero-c)), transparent 74%),
-      radial-gradient(48% 62% at 92% 54%, var(--hero-a), transparent 76%),
-      radial-gradient(62% 74% at 104% 6%, var(--hero-b), transparent 78%),
-      radial-gradient(40% 40% at 56% 86%, var(--hero-b), transparent 76%);
-    -webkit-mask-image: linear-gradient(#000 72%, transparent 88%);
-    mask-image: linear-gradient(#000 72%, transparent 88%);
-    animation: hero-luz 36s ease-in-out infinite alternate;
+      radial-gradient(70% 80% at 62% 30%, var(--hero-a), transparent 100%),
+      radial-gradient(60% 60% at 100% 0%, var(--hero-b), transparent 100%),
+      var(--bg-default);
   }
-  /* Fine grain keeps the gradient from showing bands */
-  .hero::after {
-    content: '';
+  /* Mist drawn by the browser (no image): it drifts slowly and fades before the hero ends */
+  .hero__fog {
     position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
-    mix-blend-mode: overlay;
-    opacity: 0.22;
-    -webkit-mask-image: linear-gradient(#000 80%, transparent 96%);
-    mask-image: linear-gradient(#000 80%, transparent 96%);
+    left: -8%;
+    top: -8%;
+    width: 116%;
+    height: 116%;
+    opacity: var(--hero-fog);
+    -webkit-mask-image: radial-gradient(64% 62% at 56% 42%, #000 30%, transparent 100%);
+    mask-image: radial-gradient(64% 62% at 56% 42%, #000 30%, transparent 100%);
+    animation: hero-fog 48s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+  /* Ends on the page color, so the hero never cuts against the next section */
+  .hero::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 180px;
+    background: linear-gradient(transparent, var(--bg-default));
     pointer-events: none;
   }
-  @keyframes hero-luz {
-    from { transform: translate3d(-1.5%, 0, 0) scale(1); }
-    to { transform: translate3d(1.5%, -1.5%, 0) scale(1.05); }
+  @keyframes hero-fog {
+    from { transform: translate3d(-2%, 0, 0); }
+    to { transform: translate3d(2%, -2%, 0); }
   }
   .hero__stage {
     position: absolute;
-    top: 50%;
+    top: 0;
     right: max(0px, calc(50% - 720px));
     width: 860px;
-    height: 900px;
-    margin-top: -450px;
-    transform-origin: 100% 50%;
+    height: 620px;
   }
   .hero__flower {
     position: absolute;
-    left: 430px;
-    top: 450px;
+    left: 340px;
+    top: 290px;
     width: 0;
     height: 0;
     rotate: var(--turn, 0deg);
@@ -222,26 +228,95 @@ const path = (p: (typeof hero.points)[number]) => {
   .hero__inner {
     position: relative;
     z-index: 1;
-    padding-block: var(--space-64);
-    transition: opacity 300ms var(--ease-out);
+    padding-top: 300px;
+    padding-bottom: var(--space-32);
+    pointer-events: none;
   }
-  .hero__title { max-width: 11.5em; }
+  .hero__inner a { pointer-events: auto; }
   .hero__text {
-    max-width: 30em;
-    margin-top: var(--space-32);
+    max-width: 22em;
+    margin-bottom: var(--space-24);
+  }
+
+  /* Title: two lines spread across the page, with the serif at the end */
+  .headline {
+    font-family: var(--font-heading);
+    font-weight: 400;
+    font-size: 13.2vw;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+  .headline__intro {
+    display: block;
+    margin-bottom: var(--space-16);
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    text-transform: none;
+  }
+  .headline__line { display: block; }
+  .headline__line > span { display: block; }
+  .headline__accent {
+    font-family: var(--font-accent);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.01em;
   }
   .hero__cta {
     display: inline-flex;
-    margin-top: var(--space-32);
-    padding: 12px 22px;
-    border-radius: var(--radius-full);
+    align-items: center;
+    gap: var(--space-12);
+    margin-top: var(--space-24);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  .hero__cta i {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
     background: var(--text-primary);
     color: var(--text-inverse);
+    font-style: normal;
     font-size: 14px;
-    font-weight: 500;
-    transition: opacity 200ms var(--ease-out);
+    transition: translate 300ms var(--ease-out);
   }
-  .hero__cta:hover { opacity: 0.8; }
+  .hero__cta:hover i { translate: 0 3px; }
+
+  /* Points of light: two thin rays and a soft center */
+  .star {
+    position: absolute;
+    left: var(--sx);
+    bottom: var(--sy);
+    width: var(--ss);
+    height: var(--ss);
+    margin: calc(var(--ss) / -2);
+    z-index: 1;
+    pointer-events: none;
+    animation: star 7s ease-in-out infinite;
+    animation-delay: var(--sd, 0s);
+  }
+  .star::before, .star::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+  .star::before {
+    background:
+      linear-gradient(90deg, transparent, var(--text-primary) 50%, transparent) center / 100% 1px no-repeat,
+      linear-gradient(transparent, var(--text-primary) 50%, transparent) center / 1px 72% no-repeat;
+  }
+  .star::after {
+    background: radial-gradient(closest-side, var(--text-primary) 0 2%, var(--star-glow) 4%, transparent 20%);
+  }
+  @keyframes star {
+    0%, 100% { opacity: 0.55; transform: scale(0.92); }
+    50% { opacity: 1; transform: scale(1); }
+  }
 
   .hero__veil {
     position: absolute;
@@ -287,19 +362,26 @@ const path = (p: (typeof hero.points)[number]) => {
     flex-direction: column;
     gap: var(--space-16);
   }
-  /* Keeps the same top edge on every theme so the menu stays readable */
+
   @media (min-width: 900px) {
-    .hero { min-height: 100vh; padding-top: 0; }
+    .hero { --title: clamp(62px, 7vw, 108px); min-height: max(100vh, 720px); }
     .hero__lines, .point { display: block; }
+    .hero__inner { position: relative; padding-top: 120px; }
+    .hero__text { max-width: 20em; margin: 0; position: absolute; left: var(--layout-margin); bottom: calc(var(--space-32) + 2.1 * var(--title) + var(--space-24)); }
+    .headline { font-size: var(--title); }
+    .headline__intro { margin-bottom: var(--space-24); text-align: right; font-size: 22px; }
+    .headline__line { display: flex; justify-content: space-between; }
+    .headline__line--b { justify-content: flex-end; gap: 0.3em; white-space: nowrap; }
+    .headline__accent { font-size: 1.1em; line-height: 0.91; }
+    .hero__cta { position: absolute; left: var(--layout-margin); bottom: var(--space-40); margin: 0; }
   }
   @media (max-width: 899px) {
-    /* No light behind the text on narrow screens */
-    .hero { align-items: flex-end; min-height: 100svh; --hero-spot: transparent; }
-    .hero__stage { top: 0; right: -210px; margin-top: 0; transform: scale(0.6); transform-origin: 100% 0; }
-    .hero__inner { padding-block: var(--space-40); }
+    .hero { min-height: 100svh; }
+    .hero__stage { transform: scale(0.72); transform-origin: 100% 0; right: -170px; }
     .focus, .hero__veil { display: none; }
+    .star--large { --sx: 74% !important; --sy: 38% !important; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .hero__petals, .hero::before { animation: none; }
+    .hero__petals, .hero__fog, .star { animation: none; }
   }
 </style>
