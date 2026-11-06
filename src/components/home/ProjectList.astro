@@ -1,0 +1,184 @@
+---
+// Figma: "Wireframes da Home, rodada 9", version C, component "Lista de cases, com linhas".
+// Hovering a name swaps the image and the text; on touch screens the first tap selects the
+// project and the link "Ver o case" opens it.
+import { Image } from 'astro:assets';
+import { projects } from '../../data/projects';
+import { lista } from '../../data/home';
+
+const name = (title: string) => title.replace(' de Interface', '');
+---
+
+<section class="lista container" id="projetos" aria-labelledby="lista-titulo" data-lista>
+  <div class="lista__head">
+    <h2 id="lista-titulo" class="t-h1">{lista.title} <span class="t-accent">{lista.titleAccent}</span></h2>
+    <a href="/projetos" class="lista__cta">{lista.cta}</a>
+  </div>
+
+  <div class="lista__body">
+    <ol class="lista__names">
+      {projects.map((p, i) => (
+        <li class:list={['item', { 'is-active': i === 0 }]} data-item>
+          <a href={`/projetos/${p.slug}`} class="item__name">
+            <span class="item__num">{i + 1}</span>
+            <span class="item__title">{name(p.title)}</span>
+          </a>
+          <div class="item__detail">
+            <p class="t-body-lg c-secondary">{lista.short[p.slug]}</p>
+            <a href={`/projetos/${p.slug}`} class="t-link">Ver o case →</a>
+          </div>
+        </li>
+      ))}
+    </ol>
+
+    <div class="lista__media">
+      {projects.map((p, i) => (
+        <Image src={p.image} alt={p.imageAlt} widths={[500, 800, 1264]} sizes="(min-width: 900px) 56vw, 100vw" loading={i === 0 ? 'eager' : 'lazy'} class:list={{ 'is-active': i === 0 }} data-image />
+      ))}
+    </div>
+  </div>
+</section>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-lista]');
+  if (root) {
+    const items = [...root.querySelectorAll<HTMLElement>('[data-item]')];
+    const images = root.querySelectorAll<HTMLElement>('[data-image]');
+    const hover = window.matchMedia('(hover: hover)');
+    const select = (i: number) => {
+      items.forEach((el, k) => el.classList.toggle('is-active', k === i));
+      images.forEach((el, k) => el.classList.toggle('is-active', k === i));
+    };
+    items.forEach((item, i) => {
+      const link = item.querySelector<HTMLAnchorElement>('.item__name')!;
+      item.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') select(i); });
+      link.addEventListener('focus', () => select(i));
+      link.addEventListener('click', (e) => {
+        if (!hover.matches && !item.classList.contains('is-active')) {
+          e.preventDefault();
+          select(i);
+        }
+      });
+    });
+  }
+</script>
+
+<style>
+  .lista {
+    padding-block: var(--layout-section);
+    scroll-margin-top: var(--space-24);
+  }
+  .lista__head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-16);
+    margin-bottom: var(--space-32);
+  }
+  .lista__cta {
+    flex-shrink: 0;
+    padding: 12px 22px;
+    border-radius: var(--radius-full);
+    background: var(--text-primary);
+    color: var(--text-inverse);
+    font-size: 14px;
+    font-weight: 500;
+    transition: opacity 200ms var(--ease-out);
+  }
+  .lista__cta:hover { opacity: 0.8; }
+
+  .lista__body {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: var(--space-24);
+  }
+  .lista__media {
+    position: relative;
+    aspect-ratio: 7 / 5;
+    border-radius: var(--radius-16);
+    overflow: hidden;
+    background: var(--bg-subtle);
+  }
+  .lista__media :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 400ms var(--ease-out);
+  }
+  .lista__media :global(img.is-active) { opacity: 1; }
+
+  .item { border-bottom: var(--border-width) solid color-mix(in srgb, var(--text-primary) 18%, transparent); }
+  .item:last-child { border-bottom: 0; }
+  .item__name {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-16);
+    padding-block: var(--space-12);
+  }
+  .item__num {
+    flex: 0 0 var(--space-16);
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .item__title {
+    font-family: var(--font-heading);
+    font-size: 26px;
+    font-weight: 300;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--text-tertiary);
+    transition: color 250ms var(--ease-out);
+  }
+  .item.is-active .item__title {
+    font-family: var(--font-accent);
+    font-size: 32px;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+  }
+  .item__detail {
+    display: none;
+    flex-direction: column;
+    gap: var(--space-12);
+    padding: 0 0 var(--space-16) var(--space-32);
+  }
+  .item.is-active .item__detail { display: flex; }
+
+  @media (min-width: 900px) {
+    .lista__head {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-64);
+    }
+    .lista__body {
+      display: grid;
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: var(--space-48);
+    }
+    /* The list keeps its height: the active project's text sits under it, in a fixed place */
+    .lista__names {
+      position: relative;
+      padding-bottom: 164px;
+    }
+    .item__title { font-size: 32px; }
+    .item.is-active .item__title { font-size: 38px; line-height: 1.01; }
+    .item__detail {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 136px;
+      padding: 0;
+      justify-content: space-between;
+    }
+    .lista__media {
+      aspect-ratio: auto;
+      min-height: 620px;
+    }
+  }
+</style>

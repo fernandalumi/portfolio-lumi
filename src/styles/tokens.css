@@ -16,13 +16,21 @@
   --blue-400: #7da7d9;
   --red-400: #d97d7f;
   --pink-400: #d97dab;
-  --blue-700: #1960a3; /* deep blue: cursor dot and tag, white text on top */
+  --blue-700: #536878; /* Blue Slate: cursor dot and tag, white text on top */
+  --onyx: #0a0a0a;
+  --slate: #536878;
+  --alabaster: #e5e4e2;
+  --paper: #f3f2f0;
 
   /* Color (semantic) */
-  --bg-default: var(--neutral-0);
-  --bg-subtle: var(--neutral-200);
-  --bg-inverse: var(--neutral-950);
-  --text-primary: var(--neutral-950);
+  --bg-default: var(--paper);
+  --bg-subtle: var(--alabaster);
+  --bg-card: var(--neutral-0);
+  --line-art: var(--onyx);
+  --glow: rgb(83 104 120 / 0.3);
+  --petal: rgb(83 104 120 / 0.32);
+  --bg-inverse: var(--onyx);
+  --text-primary: var(--onyx);
   --text-secondary: var(--neutral-900);
   --text-tertiary: var(--neutral-800);
   --text-hover: var(--neutral-800);
@@ -30,7 +38,7 @@
   --text-inverse: var(--neutral-0);
   --border-default: var(--neutral-500);
   --border-subtle: var(--neutral-200);
-  --border-strong: var(--neutral-950);
+  --border-strong: var(--onyx);
   --accent-green: var(--green-400);
   --accent-blue: var(--blue-400);
   --accent-red: var(--red-400);
@@ -66,8 +74,9 @@
   --layout-section: 72px;
 
   /* Typography (mobile) */
-  --font-heading: 'Anuphan Variable', 'Anuphan', system-ui, sans-serif;
-  --font-text: 'Inter Variable', 'Inter', system-ui, sans-serif;
+  --font-heading: 'Geist Variable', 'Geist', system-ui, sans-serif;
+  --font-text: 'Geist Variable', 'Geist', system-ui, sans-serif;
+  --font-accent: 'Instrument Serif', Georgia, serif;
   --fs-display: 34px;
   --fs-h1: 32px;
   --fs-h2: 28px;
@@ -85,6 +94,31 @@
 
   /* Motion */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Dark theme: only the semantic colors change */
+[data-theme='dark'] {
+  --bg-default: var(--onyx);
+  --bg-subtle: #16181a;
+  --bg-card: rgb(255 255 255 / 0.06);
+  --bg-inverse: var(--paper);
+  --text-primary: var(--neutral-0);
+  --text-secondary: #c9ccd1;
+  --text-tertiary: #a6aab0;
+  --text-hover: #a6aab0;
+  --text-muted: #8a8e94;
+  --text-inverse: var(--onyx);
+  --border-default: #2c2f33;
+  --border-subtle: #1d1f22;
+  --border-strong: var(--alabaster);
+  --line-art: var(--neutral-0);
+  --glow: rgb(83 104 120 / 0.85);
+  --petal: rgb(229 228 226 / 0.26);
+}
+
+/* Case pages come from fixed Figma layouts, so they stay on white */
+[data-theme-lock] {
+  --bg-default: var(--neutral-0);
 }
 
 @media (min-width: 768px) {

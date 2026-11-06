@@ -1,0 +1,274 @@
+---
+// Figma: "Wireframes da Home, rodada 10", section Hero. Blurred flower with connectors; on
+// desktop each point opens a focus panel over the blurred hero.
+import { Image } from 'astro:assets';
+import { hero } from '../../data/home';
+import { caseImages } from '../figma/images';
+
+const petals = Array.from({ length: 8 }, (_, i) => i * 45);
+const path = (p: (typeof hero.points)[number]) => {
+  const left = p.tagX + 40 < p.x;
+  const edge = left ? p.tagX + 90 : p.tagX + 60;
+  const y = p.tagY + (p.tagY < p.y ? 34 : 0);
+  return `M${p.x} ${p.y} H${edge + (left ? 14 : -14)} Q${edge} ${p.y} ${edge} ${p.y + (y > p.y ? 14 : -14)} V${y}`;
+};
+---
+
+<section class="hero" data-hero>
+  <div class="hero__stage">
+    <div class="hero__flower" aria-hidden="true">
+      <div class="hero__petals">{petals.map((a) => <i style={`--a:${a}deg`}></i>)}</div>
+    </div>
+    <svg class="hero__lines" viewBox="0 0 860 900" fill="none" aria-hidden="true">
+      {hero.points.map((p) => <path d={path(p)} />)}
+    </svg>
+    {hero.points.map((p, i) => (
+      <button type="button" class="point" style={`--x:${p.x}px;--y:${p.y}px;--tx:${p.tagX}px;--ty:${p.tagY}px`} data-point={i} aria-expanded="false">
+        <span class="point__dot"></span>
+        <span class="point__tag">{p.label}</span>
+      </button>
+    ))}
+  </div>
+
+  <div class="container hero__inner">
+    <h1 class="t-display hero__title">
+      {hero.greeting}<br />
+      {hero.title} <span class="t-accent">{hero.titleAccent}</span>
+    </h1>
+    <p class="t-body-lg c-secondary hero__text">{hero.text}</p>
+    <a href={hero.cta.href} class="hero__cta">{hero.cta.label}</a>
+  </div>
+
+  <div class="hero__veil" aria-hidden="true"></div>
+  {hero.points.map((p, i) => (
+    <a href={p.href} class="focus" data-focus={i} tabindex="-1">
+      <span class="focus__frame">
+        <Image src={caseImages[p.image]} alt="" widths={[520, 1040]} sizes="520px" class="focus__img" />
+      </span>
+      <span class="focus__info">
+        <span class="t-h2 focus__title">{p.title}</span>
+        <span class="t-body-lg c-secondary">{p.text}</span>
+        <span class="t-link">Ver {p.project} →</span>
+      </span>
+    </a>
+  ))}
+</section>
+
+<script>
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  const flower = hero?.querySelector<HTMLElement>('.hero__flower');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  // The flower keeps turning with the scroll, as on the previous Home
+  let frame = 0;
+  const tick = () => { flower?.style.setProperty('--turn', `${window.scrollY * 0.1}deg`); frame = 0; };
+  if (flower && !reduce.matches) {
+    window.addEventListener('scroll', () => { if (!frame) frame = requestAnimationFrame(tick); }, { passive: true });
+  }
+
+  if (hero) {
+    const points = hero.querySelectorAll<HTMLButtonElement>('[data-point]');
+    const panels = hero.querySelectorAll<HTMLElement>('[data-focus]');
+    let timer = 0;
+    const show = (i: number | null) => {
+      clearTimeout(timer);
+      hero.classList.toggle('is-focus', i !== null);
+      panels.forEach((p, k) => { p.classList.toggle('is-open', k === i); p.tabIndex = k === i ? 0 : -1; });
+      points.forEach((b, k) => b.setAttribute('aria-expanded', String(k === i)));
+    };
+    const later = () => { timer = window.setTimeout(() => show(null), 220); };
+    points.forEach((b, i) => {
+      b.addEventListener('pointerenter', () => show(i));
+      b.addEventListener('pointerleave', later);
+      b.addEventListener('focus', () => show(i));
+      b.addEventListener('click', () => show(i));
+    });
+    panels.forEach((p) => {
+      p.addEventListener('pointerenter', () => clearTimeout(timer));
+      p.addEventListener('pointerleave', later);
+      p.addEventListener('blur', later);
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') show(null); });
+  }
+</script>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    min-height: 720px;
+    display: flex;
+    align-items: center;
+    padding-top: 80px;
+    background:
+      radial-gradient(50% 72% at 78% 34%, var(--glow), transparent 100%),
+      var(--bg-default);
+  }
+  .hero__stage {
+    position: absolute;
+    top: 50%;
+    right: max(0px, calc(50% - 720px));
+    width: 860px;
+    height: 900px;
+    margin-top: -450px;
+    transform-origin: 100% 50%;
+  }
+  .hero__flower {
+    position: absolute;
+    left: 430px;
+    top: 450px;
+    width: 0;
+    height: 0;
+    rotate: var(--turn, 0deg);
+    transition: rotate 600ms var(--ease-out);
+  }
+  .hero__petals {
+    animation: flor 180s linear infinite;
+    filter: blur(26px);
+  }
+  .hero__petals i {
+    position: absolute;
+    left: -84px;
+    top: -330px;
+    width: 168px;
+    height: 300px;
+    border-radius: 50%;
+    background: var(--petal);
+    transform: rotate(var(--a));
+    transform-origin: 50% 330px;
+  }
+  @keyframes flor { to { transform: rotate(360deg); } }
+
+  .hero__lines {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    stroke: var(--text-primary);
+    stroke-opacity: 0.45;
+    pointer-events: none;
+    display: none;
+  }
+  .point {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    display: none;
+  }
+  .point__dot {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: 28px;
+    height: 28px;
+    margin: -14px 0 0 -14px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--text-primary) 0 3px, transparent 3.5px);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text-primary) 45%, transparent);
+    transition: scale 300ms var(--ease-out);
+  }
+  .point:hover .point__dot, .point:focus-visible .point__dot { scale: 1.3; }
+  .point__tag {
+    position: absolute;
+    left: var(--tx);
+    top: var(--ty);
+    padding: 6px 10px;
+    border: var(--border-width) solid color-mix(in srgb, var(--text-primary) 22%, transparent);
+    border-radius: var(--radius-4);
+    background: color-mix(in srgb, var(--bg-default) 45%, transparent);
+    backdrop-filter: blur(12px);
+    color: var(--text-primary);
+    font-size: 13px;
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+
+  .hero__inner {
+    position: relative;
+    z-index: 1;
+    padding-block: var(--space-64);
+    transition: opacity 300ms var(--ease-out);
+  }
+  .hero__title { max-width: 11.5em; }
+  .hero__text {
+    max-width: 30em;
+    margin-top: var(--space-32);
+  }
+  .hero__cta {
+    display: inline-flex;
+    margin-top: var(--space-32);
+    padding: 12px 22px;
+    border-radius: var(--radius-full);
+    background: var(--text-primary);
+    color: var(--text-inverse);
+    font-size: 14px;
+    font-weight: 500;
+    transition: opacity 200ms var(--ease-out);
+  }
+  .hero__cta:hover { opacity: 0.8; }
+
+  .hero__veil {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: color-mix(in srgb, var(--bg-default) 42%, transparent);
+    backdrop-filter: blur(22px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 300ms var(--ease-out);
+  }
+  .is-focus .hero__veil { opacity: 1; }
+
+  .focus {
+    position: absolute;
+    z-index: 3;
+    left: 50%;
+    top: 50%;
+    display: flex;
+    align-items: center;
+    gap: var(--space-48);
+    width: min(960px, 90vw);
+    transform: translate(-50%, -50%) scale(0.98);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 300ms var(--ease-out), transform 300ms var(--ease-out), visibility 300ms;
+  }
+  .focus.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%);
+  }
+  .focus__frame {
+    position: relative;
+    flex: 0 0 56%;
+    aspect-ratio: 13 / 10;
+    outline: 1px solid color-mix(in srgb, var(--text-primary) 65%, transparent);
+    outline-offset: 6px;
+  }
+  .focus__img { width: 100%; height: 100%; object-fit: cover; }
+  .focus__info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+  }
+  /* Keeps the same top edge on every theme so the menu stays readable */
+  @media (min-width: 900px) {
+    .hero { min-height: 100vh; padding-top: 0; }
+    .hero__lines, .point { display: block; }
+  }
+  @media (max-width: 899px) {
+    .hero { align-items: flex-end; min-height: 100svh; background: radial-gradient(90% 46% at 70% 24%, var(--glow), transparent 100%), var(--bg-default); }
+    .hero__stage { top: 0; right: -210px; margin-top: 0; transform: scale(0.6); transform-origin: 100% 0; }
+    .hero__inner { padding-block: var(--space-40); }
+    .focus, .hero__veil { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero__petals { animation: none; }
+  }
+</style>

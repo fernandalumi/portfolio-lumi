@@ -20,7 +20,7 @@ const clients: { name: string; src: ImageMetadata; h: number; raster?: boolean }
 ---
 
 <section class="clients" aria-labelledby="clientes-titulo">
-  <h2 id="clientes-titulo" class="t-label clients__title container">Marcas com quem já trabalhei</h2>
+  <h2 id="clientes-titulo" class="t-body-lg c-tertiary clients__title container">Marcas com quem já trabalhei</h2>
   <div class="clients__lane">
     <div class="clients__row">
       {[0, 1, 2, 3].map((copy) => (
@@ -41,10 +41,7 @@ const clients: { name: string; src: ImageMetadata; h: number; raster?: boolean }
     display: flex;
     flex-direction: column;
     gap: var(--space-24);
-    padding-top: var(--space-48);
-  }
-  .clients__title {
-    color: var(--text-muted);
+    padding-block: var(--space-48);
   }
   /* soft fade on both edges so logos enter and leave without a hard cut */
   .clients__lane {
@@ -69,21 +66,23 @@ const clients: { name: string; src: ImageMetadata; h: number; raster?: boolean }
     list-style: none;
     flex-shrink: 0;
   }
+  /* Every logo becomes a single color that follows the theme */
   .clients__track img {
     display: block;
     width: auto;
     height: calc(var(--h) * 0.8);
+    filter: brightness(0);
+    opacity: 0.85;
   }
-  /* Milium only exists as a color bitmap: turn it grey to match the vector logos */
-  .clients__track img.is-raster {
-    filter: grayscale(1) contrast(0.4) brightness(1.55);
+  :global([data-theme='dark']) .clients__track img {
+    filter: brightness(0) invert(1);
   }
   @keyframes clients {
     from { transform: translateX(0); }
     to { transform: translateX(-25%); }
   }
   @media (min-width: 900px) {
-    .clients { padding-top: var(--space-56); }
+    .clients { padding-block: var(--space-56); }
     .clients__track { gap: 120px; padding-right: 120px; }
     .clients__track img { height: var(--h); }
   }

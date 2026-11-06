@@ -1,141 +1,18 @@
 ---
-import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
-import ProjectCard from '../components/ProjectCard.astro';
-import TextLink from '../components/TextLink.astro';
-import Ticker from '../components/Ticker.astro';
+import HomeHero from '../components/home/HomeHero.astro';
 import Clients from '../components/Clients.astro';
-import { projects } from '../data/projects';
-import flowerHero from '../assets/brand/flower-hero.png';
+import Etapas from '../components/home/Etapas.astro';
+import ProjectList from '../components/home/ProjectList.astro';
+import ComoEuPenso from '../components/home/ComoEuPenso.astro';
+import Ticker from '../components/Ticker.astro';
 ---
 
-<Base>
-  <section class="hero">
-    <Image src={flowerHero} alt="" class="hero__flower flower" widths={[400, 800, 1200, 1600, 2400]} sizes="(min-width: 900px) 917px, 437px" quality={92} loading="eager" />
-    <div class="container hero__inner">
-      <h1 class="t-display hero__title">
-        Olá, eu sou a <strong>Lumi</strong><br />
-        Projeto produtos digitais, interfaces e <span class="nowrap">design system.</span>
-      </h1>
-    </div>
-  </section>
-
+<Base navOverlay>
+  <HomeHero />
   <Clients />
-
-  <section class="projects container" aria-labelledby="projetos-titulo">
-    <div class="section-header">
-      <h2 id="projetos-titulo" class="t-h2">Projetos selecionados</h2>
-      <TextLink href="/projetos">Ver todos os projetos →</TextLink>
-    </div>
-    <div class="grid">
-      {projects.map((p, i) => <ProjectCard project={p} eager={i < 2} />)}
-    </div>
-  </section>
-
+  <Etapas />
+  <ProjectList />
+  <ComoEuPenso />
   <Ticker />
 </Base>
-
-<script>
-  // Hero flower turns with the scroll (clockwise going down, back counterclockwise going up)
-  // and grows up to 15% while the hero scrolls away, returning to 0° and 100% at the top.
-  // A light easing keeps the motion soft.
-  const flower = document.querySelector<HTMLElement>('.hero__flower');
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-  // Degrees per pixel scrolled: slower on desktop (about 75° across the hero), a bit faster on mobile
-  const desktop = window.matchMedia('(min-width: 900px)');
-  const degPerPx = () => (desktop.matches ? 0.1 : 0.135);
-  const GROW = 0.15; // +15% at full growth
-  const GROW_DISTANCE = 600; // px of scroll to reach full growth
-  const EASE = 0.12; // 0-1, lower is softer
-  let current = 0;
-  let frame = 0;
-  const tick = () => {
-    const target = window.scrollY * degPerPx();
-    current += (target - current) * EASE;
-    if (Math.abs(target - current) < 0.05) current = target;
-    const scale = 1 + GROW * Math.min(current / degPerPx() / GROW_DISTANCE, 1);
-    flower!.style.transform = `rotate(${current.toFixed(2)}deg) scale(${scale.toFixed(4)})`;
-    frame = current === target ? 0 : requestAnimationFrame(tick);
-  };
-  const onScroll = () => { if (!frame) frame = requestAnimationFrame(tick); };
-  if (flower && !reduce.matches) {
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-  }
-</script>
-
-<style>
-  .hero {
-    position: relative;
-    overflow: hidden;
-  }
-  .hero__flower {
-    position: absolute;
-    width: 380px;
-    height: auto;
-    left: 110px;
-    top: -30px;
-    transform-origin: 50% 50%;
-    will-change: transform;
-  }
-  .hero__inner {
-    position: relative;
-    display: flex;
-    align-items: center;
-    padding-top: 160px;
-    padding-bottom: var(--space-24);
-  }
-  .hero__title .nowrap {
-    white-space: nowrap;
-  }
-  .hero__title strong {
-    font-weight: 500;
-  }
-
-  .projects {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-32);
-    padding-block: var(--layout-section);
-  }
-  .section-header {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-12);
-  }
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-40);
-  }
-
-  @media (min-width: 768px) {
-    .grid {
-      grid-template-columns: 1fr 1fr;
-      gap: var(--space-48);
-    }
-  }
-
-  @media (min-width: 900px) {
-    /* Figma: flower 797px wide, 643px from the left edge of the 1440 frame */
-    .hero__flower {
-      width: 797px;
-      left: calc(50% - 77px);
-      top: 0;
-    }
-    .hero__inner {
-      min-height: 750px;
-      padding-block: var(--space-56);
-    }
-    .projects {
-      gap: var(--space-56);
-      padding-top: var(--space-120);
-      padding-bottom: 130px;
-    }
-    .section-header {
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: flex-end;
-    }
-  }
-</style>

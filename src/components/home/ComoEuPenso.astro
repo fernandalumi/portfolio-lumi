@@ -1,0 +1,103 @@
+---
+// Figma: "Wireframes da Home, rodada 10", section Como eu penso. Rings with points in orbit;
+// the point of each item lights its text in turn.
+import { comoEuPenso } from '../../data/home';
+---
+
+<section class="orbita container" aria-labelledby="orbita-titulo">
+  <h2 id="orbita-titulo" class="t-h1 orbita__title">{comoEuPenso.title} <span class="t-accent">{comoEuPenso.titleAccent}</span></h2>
+  <div class="orbita__map">
+    <span class="orbita__ring orbita__ring--a" aria-hidden="true"><i></i></span>
+    <span class="orbita__ring orbita__ring--b" aria-hidden="true"><i></i></span>
+    <p class="t-h3 orbita__center">{comoEuPenso.center}</p>
+    <ul class="orbita__items">
+      {comoEuPenso.items.map((item, i) => (
+        <li class={`orbita__item orbita__item--${i + 1}`} style={`--i:${i}`}>
+          <h3 class="t-h3">{item.title}</h3>
+          <p class="t-body c-tertiary">{item.text}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .orbita {
+    padding-block: var(--layout-section);
+  }
+  .orbita__title { max-width: 11em; }
+  .orbita__map { position: relative; margin-top: var(--space-40); }
+  .orbita__ring { display: none; }
+  .orbita__center { display: none; }
+  .orbita__items { display: grid; gap: var(--space-24); }
+  .orbita__item h3 { margin-bottom: var(--space-4); }
+
+  @media (min-width: 900px) {
+    .orbita { position: relative; }
+    .orbita__title { position: relative; z-index: 1; }
+    .orbita__map {
+      height: 760px;
+      margin-top: -96px;
+      background: radial-gradient(closest-side, var(--glow), transparent) center / 860px 760px no-repeat;
+    }
+    .orbita__ring {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      display: block;
+      border-radius: 50%;
+      border: 1px solid color-mix(in srgb, var(--text-primary) 16%, transparent);
+      transform: translate(-50%, -50%);
+    }
+    .orbita__ring--a { width: 480px; height: 480px; }
+    .orbita__ring--b { width: 740px; height: 740px; border-color: color-mix(in srgb, var(--text-primary) 10%, transparent); }
+    .orbita__ring i {
+      position: absolute;
+      inset: 0;
+      animation: orbita 48s linear infinite;
+    }
+    .orbita__ring--b i { animation-duration: 72s; animation-direction: reverse; }
+    .orbita__ring i::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: -4px;
+      width: 7px;
+      height: 7px;
+      margin-left: -3.5px;
+      border-radius: 50%;
+      background: var(--text-primary);
+    }
+    @keyframes orbita { to { transform: rotate(360deg); } }
+    .orbita__center {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      display: block;
+      width: 280px;
+      margin: 0;
+      text-align: center;
+      text-wrap: balance;
+      transform: translate(-50%, -50%);
+    }
+    .orbita__items { position: absolute; inset: 0; display: block; }
+    .orbita__item {
+      position: absolute;
+      width: 300px;
+      animation: orbita-luz 16s linear infinite;
+      animation-delay: calc(var(--i) * 4s - 16s);
+    }
+    .orbita__item--1 { left: 0; top: 34%; }
+    .orbita__item--2 { right: 0; top: 18%; }
+    .orbita__item--3 { left: 0; top: 68%; }
+    .orbita__item--4 { right: 0; top: 68%; }
+    @keyframes orbita-luz {
+      0%, 25% { opacity: 1; }
+      35%, 90% { opacity: 0.74; }
+      100% { opacity: 1; }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .orbita__ring i, .orbita__item { animation: none; }
+  }
+</style>

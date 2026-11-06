@@ -25,7 +25,7 @@ const ctxM = { mobile: true, nextHref, state: { h1: false, firstImg: false } };
 const zoomable = ['catharine-hill'].includes(project.slug);
 ---
 
-<Base title={project.title} description={project.description}>
+<Base title={project.title} description={project.description} lockLight>
   {desktop && (
     <div class="case case--d" data-zoomable={zoomable ? '' : undefined}>
       {desktop.c.map((node) => <FigmaNode node={node} parentDir="V" ctx={ctxD} />)}

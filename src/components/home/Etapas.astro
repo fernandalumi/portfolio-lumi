@@ -1,0 +1,105 @@
+---
+// Figma: "Wireframes da Home, rodada 10", section Etapas do processo. Cards with line art.
+import { etapas } from '../../data/home';
+---
+
+<section class="etapas container" aria-labelledby="etapas-titulo">
+  <div class="etapas__head">
+    <h2 id="etapas-titulo" class="t-h1">{etapas.title}<br /><span class="t-accent">{etapas.titleAccent}</span></h2>
+    <p class="t-body-lg c-tertiary etapas__text">{etapas.text}</p>
+  </div>
+  <ul class="etapas__grid">
+    {etapas.items.map((item) => (
+      <li>
+        <a href="/projetos" class="card">
+          <svg class="card__art" viewBox="0 0 310 240" fill="none" aria-hidden="true">
+            {item.art === 'fluxo' && (
+              <g>
+                <rect x="48" y="70" width="52" height="34" rx="4" /><rect x="210" y="70" width="52" height="34" rx="4" />
+                <rect x="48" y="170" width="52" height="34" rx="4" /><rect x="210" y="170" width="52" height="34" rx="4" />
+                <path d="M100 87H145Q155 87 155 97V177Q155 187 165 187H210M100 187H145Q155 187 155 177V97Q155 87 165 87H210" />
+                <circle class="fill" cx="155" cy="137" r="4" />
+              </g>
+            )}
+            {item.art === 'wireframe' && (
+              <g><rect x="60" y="50" width="190" height="44" rx="3" /><rect x="60" y="104" width="90" height="70" rx="3" /><rect x="160" y="104" width="90" height="70" rx="3" /><rect x="60" y="184" width="190" height="14" rx="3" /></g>
+            )}
+            {item.art === 'sistema' && (
+              <g><circle cx="155" cy="130" r="60" /><circle cx="155" cy="130" r="42" /><circle cx="155" cy="130" r="24" /><circle class="fill" cx="155" cy="130" r="5" />
+              {[[75, 65], [235, 65], [75, 195], [235, 195]].map(([x, y]) => <circle class="fill" cx={x} cy={y} r="3" />)}</g>
+            )}
+            {item.art === 'prototipo' && (
+              <g><rect x="95" y="44" width="120" height="172" rx="12" /><rect class="soft" x="107" y="60" width="96" height="60" rx="4" /><path d="M188 170V196L196 190" /></g>
+            )}
+          </svg>
+          <h3 class="t-h3 card__title">{item.title}</h3>
+          <p class="t-body c-tertiary">{item.text}</p>
+        </a>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .etapas {
+    padding-block: var(--layout-section);
+  }
+  .etapas__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+    margin-bottom: var(--space-40);
+  }
+  .etapas__text { max-width: 24em; text-wrap: balance; }
+  .etapas__grid {
+    display: flex;
+    gap: var(--space-16);
+    margin-inline: calc(-1 * var(--layout-margin));
+    padding-inline: var(--layout-margin);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .etapas__grid li {
+    flex: 0 0 82%;
+    scroll-snap-align: center;
+  }
+  .card {
+    display: block;
+    height: 100%;
+    padding: var(--space-8) var(--space-24) var(--space-24);
+    border: var(--border-width) solid color-mix(in srgb, var(--text-primary) 8%, transparent);
+    border-radius: var(--radius-16);
+    background: var(--bg-card);
+    transition: border-color 300ms var(--ease-out), translate 300ms var(--ease-out);
+  }
+  .card:hover {
+    border-color: color-mix(in srgb, var(--text-primary) 32%, transparent);
+    translate: 0 -4px;
+  }
+  .card__art {
+    display: block;
+    width: 100%;
+    stroke: var(--line-art);
+    stroke-opacity: 0.75;
+  }
+  .card__art .fill { fill: var(--line-art); stroke: none; }
+  .card__art .soft { fill: var(--slate); fill-opacity: 0.5; stroke: none; }
+  .card__title { margin-bottom: var(--space-8); }
+  @media (min-width: 900px) {
+    .etapas__head {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: var(--space-80);
+    }
+    .etapas__grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-24);
+      margin-inline: 0;
+      padding-inline: 0;
+      overflow: visible;
+    }
+  }
+</style>

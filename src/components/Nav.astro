@@ -1,12 +1,19 @@
 ---
 // Figma: component "Nav" (Breakpoint=Desktop / Breakpoint=Mobile)
 import { nav } from '../data/site';
+import ThemeSwitch from './ThemeSwitch.astro';
+
+interface Props {
+  themeSwitch?: boolean;
+  overlay?: boolean;
+}
+const { themeSwitch = true, overlay = false } = Astro.props;
 
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 const isActive = (href: string) => (href === '/' ? path === '/' : path === href || path.startsWith(href + '/'));
 ---
 
-<header class="nav">
+<header class:list={['nav', { 'nav--overlay': overlay }]}>
   <div class="nav__bar">
     <a href="/" class="nav__logo t-logo" aria-label="Lumi, página inicial">LUMI.</a>
 
@@ -21,6 +28,8 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path === href 
         ))}
       </ul>
     </nav>
+
+    {themeSwitch && <ThemeSwitch />}
 
     <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Abrir menu">
       <span></span><span></span>
@@ -68,13 +77,19 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path === href 
   .nav__bar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: var(--space-16);
     padding: 12px var(--layout-margin);
     max-width: calc(var(--layout-content) + 2 * var(--layout-margin));
     margin-inline: auto;
   }
+  .nav--overlay {
+    position: absolute;
+    inset: 0 0 auto 0;
+    background: transparent;
+  }
   .nav__logo {
     color: var(--text-primary);
+    margin-right: auto;
   }
   .nav__menu {
     display: none;
@@ -149,7 +164,7 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path === href 
   }
 
   @media (min-width: 900px) {
-    .nav__bar { padding-block: 40px; }
+    .nav__bar { padding-block: 40px; gap: var(--space-32); }
     .nav__menu { display: block; }
     .nav__toggle, .nav__drawer { display: none; }
   }
