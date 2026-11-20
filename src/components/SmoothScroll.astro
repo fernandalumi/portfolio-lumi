@@ -1,0 +1,20 @@
+---
+// Smooth wheel scrolling with Lenis. Touch screens keep the native scroll, and visitors who
+// prefer reduced motion keep the browser's default behaviour.
+---
+
+<script>
+  import Lenis from 'lenis';
+  import 'lenis/dist/lenis.css';
+
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    // lerp: lower is softer. Links to a section of the page glide there too.
+    const lenis = new Lenis({ autoRaf: true, lerp: 0.12, anchors: true });
+
+    // The open mobile menu holds the page still
+    new MutationObserver(() => {
+      if (document.body.classList.contains('menu-open')) lenis.stop();
+      else lenis.start();
+    }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  }
+</script>
